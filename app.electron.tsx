@@ -7,7 +7,9 @@ import { I18nProvider } from '@lingui/react'
 import { ThemeProvider } from 'pearpass-lib-ui-theme-provider'
 import { setPearpassVaultClient, VaultProvider } from 'pearpass-lib-vault'
 import { createRoot } from 'react-dom/client'
+import { Button, ThemeProvider as UIKitProvider } from '@tetherto/pearpass-lib-ui-kit'
 
+import './src/strict.css'
 import { App } from './src/app/App'
 import { LoadingProvider } from './src/context/LoadingContext'
 import { ModalProvider } from './src/context/ModalContext'
@@ -31,23 +33,26 @@ function renderApp() {
   if (!container) throw new Error('Failed to find the root element')
   const root = createRoot(container)
   root.render(
-    <LoadingProvider>
-      <ThemeProvider>
-        <VaultProvider>
-          <I18nProvider i18n={i18n}>
-            <ToastProvider>
-              <RouterProvider>
-                <AutoLockProvider>
-                  <ModalProvider>
-                    <App />
-                  </ModalProvider>
-                </AutoLockProvider>
-              </RouterProvider>
-            </ToastProvider>
-          </I18nProvider>
-        </VaultProvider>
-      </ThemeProvider>
-    </LoadingProvider>
+    <UIKitProvider>
+      <LoadingProvider>
+        <ThemeProvider>
+          <VaultProvider>
+            <I18nProvider i18n={i18n}>
+              <ToastProvider>
+                <RouterProvider>
+                  <AutoLockProvider>
+                    <ModalProvider>
+                      <App />
+                    </ModalProvider>
+                  </AutoLockProvider>
+                </RouterProvider>
+              </ToastProvider>
+            </I18nProvider>
+          </VaultProvider>
+        </ThemeProvider>
+      </LoadingProvider>
+    </UIKitProvider>
+
   )
 }
 
