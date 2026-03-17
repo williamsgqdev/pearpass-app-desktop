@@ -11,7 +11,16 @@ const { app, BrowserWindow, ipcMain, nativeImage } = require('electron')
 const PearRuntime = require('pear-runtime')
 const getPearRuntimeLegacyStorage = require('pear-runtime-legacy-storage')
 const { isLinux, isWindows, isMac } = require('which-runtime')
-const debugMode = false
+let debugMode = false
+
+;(async () => {
+  try {
+    const { DEBUG_MODE } = await import('../src/constants/appConstants.js')
+    debugMode = DEBUG_MODE
+  } catch {
+    // fall back to default debugMode = false
+  }
+})()
 
 const pkg = require('../package.json')
 const runtimeConfig = require('./runtime-config.cjs')
@@ -373,6 +382,7 @@ function createWindow() {
       : {}),
     backgroundColor: '#1F2430',
     icon: iconPath && iconImage && !iconImage.isEmpty() ? iconPath : undefined,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       nodeIntegration: true,
