@@ -234,6 +234,7 @@
     "@tetherto/pearpass-lib-vault-core": "git+https://github.com/tetherto/pearpass-lib-vault-core.git",
     "@tetherto/pearpass-utils-password-check": "git+https://github.com/tetherto/pearpass-utils-password-check.git",
     "@tetherto/pearpass-utils-password-generator": "git+https://github.com/tetherto/pearpass-utils-password-generator.git",
+    "autopass": "~3.3.0",
     "bare-os": "3.6.2",
     "bare-subprocess": "5.2.1",
     "buffer": "6.0.3",

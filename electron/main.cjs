@@ -96,7 +96,14 @@ function getStorageDir() {
   return getSandboxSafePath(app.getPath('userData'))
 }
 
-async function resolveRuntimeStorageDir(upgrade) {
+// Resolve storage root for this pear app.
+// 1) If the legacy Pear platform store knows this app (existing install),
+//    use that path for full compatibility.
+// 2) Otherwise, fall back to an Electron-owned per-link directory under
+//    userData so multiple links can coexist on the same machine.
+async function resolveRuntimeStorageDir() {
+  const { legacyChannelLink, upgrade } = runtimeConfig || {}
+
   let storageDir = getStorageDir()
   const linkId = upgrade.replace(/^pear:\/\//, '')
 
@@ -107,9 +114,12 @@ async function resolveRuntimeStorageDir(upgrade) {
   }
 
   try {
-    const pearStorageDir = await getPearRuntimeLegacyStorage(upgrade)
-    if (pearStorageDir) {
-      storageDir = getSandboxSafePath(pearStorageDir)
+    const legacyStorageDir = legacyChannelLink
+      ? await getPearRuntimeLegacyStorage(legacyChannelLink)
+      : null
+
+    if (legacyStorageDir) {
+      storageDir = getSandboxSafePath(legacyStorageDir)
       logger.info('[MAIN]', 'Using pear legacy storage root:', storageDir)
     } else {
       storageDir = path.join(storageDir, 'app-storage', 'by-dkey', linkId)
@@ -123,8 +133,8 @@ async function resolveRuntimeStorageDir(upgrade) {
     storageDir = path.join(getStorageDir(), 'app-storage', 'by-dkey', linkId)
     logger.warn(
       'MAIN',
-      'Failed to resolve legacy pear storage for upgrade link, using per-link Electron storage:',
-      upgrade,
+      'Failed to resolve legacy pear storage, using per-link Electron storage:',
+      legacyChannelLink,
       err && err.message ? err.message : err,
       'storageDir=',
       storageDir
@@ -214,13 +224,7 @@ async function startRuntime() {
     return
   }
 
-  // Resolve storage root for this pear app.
-  // 1) If the legacy Pear platform store knows this app (existing install),
-  //    use that path for full compatibility.
-  // 2) Otherwise, fall back to an Electron-owned per-link directory under
-  //    userData so multiple links can coexist on the same machine.
-  const storageDir = await resolveRuntimeStorageDir(upgrade)
-  console.info('STORAGE_PATH_SET', storageDir)
+  const storageDir = getStorageDir()
 
   // to clear local vault/encryption data so the app starts from scratch.
   clearVaultStorageForDevReset(storageDir)
@@ -275,10 +279,14 @@ async function startRuntime() {
     logger.error('MAIN', '[worklet process error]', err)
   })
   await waitForWorkletReady(workletSidecar)
-
-  vaultClient = new PearpassVaultClient(workletSidecar, storageDir, {
-    debugMode
-  })
+  const storagePath = await resolveRuntimeStorageDir()
+  try {
+    vaultClient = new PearpassVaultClient(workletSidecar, storagePath, {
+      debugMode
+    })
+  } catch (error) {
+    console.error('Error creating PearpassVaultClient', error)
+  }
 
   vaultClient.on('update', () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
@@ -496,13 +504,7 @@ function registerIPC() {
   ipcMain.handle('app:getVersion', () => app.getVersion())
 
   ipcMain.handle('runtime:getConfig', async () => {
-    const upgrade = runtimeConfig.upgrade
-    let storage = getStorageDir()
-
-    if (upgrade) {
-      storage = await resolveRuntimeStorageDir(upgrade)
-    }
-
+    const storage = await resolveRuntimeStorageDir()
     return {
       storage,
       key: runtimeConfig.upgrade || null,
@@ -510,9 +512,15 @@ function registerIPC() {
       version: runtimeConfig.version,
       applink: runtimeConfig.upgrade || '',
       userDataPath: getStorageDir(),
-      execPath: isWindows && process.windowsStore
-        ? path.join(process.env.LOCALAPPDATA, 'Microsoft', 'WindowsApps', path.basename(process.execPath))
-        : process.execPath,
+      execPath:
+        isWindows && process.windowsStore
+          ? path.join(
+              process.env.LOCALAPPDATA,
+              'Microsoft',
+              'WindowsApps',
+              path.basename(process.execPath)
+            )
+          : process.execPath,
       bridgePath: getNativeBridgePath()
     }
   })
