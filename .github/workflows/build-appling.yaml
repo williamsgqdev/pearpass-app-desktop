@@ -6,6 +6,7 @@ on:
       - main
       - dev
       - staging
+      - updater
   workflow_dispatch:
     inputs:
       tag:
@@ -57,6 +58,7 @@ jobs:
         working-directory: ./appling
     env:
       APP_FILE: ${{ github.ref == 'refs/heads/main' && 'app' || github.ref == 'refs/heads/staging' && 'app.staging' || 'app.dev' }}.cjs
+      PEARPASS_UPGRADE_LINK: ${{ vars.PEARPASS_UPGRADE_LINK }}
     steps:
       - uses: actions/checkout@v4
 
@@ -120,6 +122,7 @@ jobs:
       # Apple code signing identity - used for app, installer, and DMG signing
       APPLE_SIGNING_IDENTITY: "959D2C8BB8323AEF9C2367ACA2F854AE4D7DE458"
       APP_FILE: ${{ github.ref == 'refs/heads/main' && 'app' || github.ref == 'refs/heads/staging' && 'app.staging' || 'app.dev' }}.cjs
+      PEARPASS_UPGRADE_LINK: ${{ vars.PEARPASS_UPGRADE_LINK }}
     steps:
       - uses: actions/checkout@v4
 

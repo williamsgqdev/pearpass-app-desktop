@@ -4,10 +4,9 @@ import { usePearUpdate } from './usePearUpdate'
 import { useModal } from '../context/ModalContext'
 
 global.Pear = {
-  updates: jest.fn(),
+  messages: jest.fn(),
   restart: jest.fn(),
   reload: jest.fn(),
-  updated: jest.fn(() => Promise.resolve(false)),
   config: { tier: 'prod', key: 'some-key' }
 }
 
@@ -17,68 +16,66 @@ jest.mock('../context/ModalContext', () => ({
 
 describe('usePearUpdate', () => {
   let setModalMock
+  let runtimeUpdatedCb
 
   beforeEach(() => {
     setModalMock = jest.fn()
     useModal.mockReturnValue({ setModal: setModalMock })
-    Pear.updates.mockClear()
+    runtimeUpdatedCb = null
+    Pear.messages.mockClear()
     Pear.restart.mockClear()
     Pear.reload.mockClear()
-    Pear.updated.mockClear()
     Pear.config.tier = 'prod'
     Pear.config.key = 'some-key'
-  })
 
-  it('subscribes to Pear updates', () => {
-    renderHook(() => usePearUpdate())
-    expect(Pear.updates).toHaveBeenCalledTimes(1)
-  })
-
-  it('shows modal when update has non-ignored changes (prod)', async () => {
-    renderHook(() => usePearUpdate())
-
-    const callback = Pear.updates.mock.calls[0][0]
-    await act(async () => {
-      await callback({ diff: [{ key: '/app/file.js' }] })
+    Pear.messages.mockImplementation((filter, cb) => {
+      runtimeUpdatedCb = cb
+      return { destroy: jest.fn() }
     })
+  })
+
+  it('subscribes to Pear runtime updated messages', () => {
+    renderHook(() => usePearUpdate())
+    expect(Pear.messages).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows modal when runtime updated message is received', async () => {
+    renderHook(() => usePearUpdate())
+
+    expect(runtimeUpdatedCb).toBeInstanceOf(Function)
+    await act(async () => runtimeUpdatedCb({ type: 'pear-runtime/updated' }))
 
     expect(setModalMock).toHaveBeenCalledTimes(1)
     expect(Pear.restart).not.toHaveBeenCalled()
     expect(Pear.reload).not.toHaveBeenCalled()
   })
 
-  it('does not show modal for only ignored files', async () => {
+  it('does not show modal for non-updated message types', async () => {
     renderHook(() => usePearUpdate())
 
-    const callback = Pear.updates.mock.calls[0][0]
-    await act(async () => {
-      await callback({ diff: [{ key: '/logs/log.txt' }] })
-    })
+    expect(runtimeUpdatedCb).toBeInstanceOf(Function)
+    await act(async () => runtimeUpdatedCb({ type: 'pear-runtime/updating' }))
 
     expect(setModalMock).not.toHaveBeenCalled()
   })
 
-  it('ignores updates in dev mode (no key)', async () => {
+  it('does not show modal in DEV (no Pear.config.key)', async () => {
     Pear.config.key = null
     renderHook(() => usePearUpdate())
 
-    const callback = Pear.updates.mock.calls[0][0]
-    await act(async () => {
-      await callback({ diff: [{ key: '/app/file.js' }] })
-    })
+    expect(runtimeUpdatedCb).toBeInstanceOf(Function)
+    await act(async () => runtimeUpdatedCb({ type: 'pear-runtime/updated' }))
 
     expect(setModalMock).not.toHaveBeenCalled()
     expect(Pear.restart).not.toHaveBeenCalled()
-    expect(Pear.reload).toHaveBeenCalled()
+    expect(Pear.reload).not.toHaveBeenCalled()
   })
 
   it('triggers restart when update handler is called', async () => {
     renderHook(() => usePearUpdate())
 
-    const callback = Pear.updates.mock.calls[0][0]
-    await act(async () => {
-      await callback({ diff: [{ key: '/app/file.js' }] })
-    })
+    expect(runtimeUpdatedCb).toBeInstanceOf(Function)
+    await act(async () => runtimeUpdatedCb({ type: 'pear-runtime/updated' }))
 
     const modalVNode = setModalMock.mock.calls[0][0]
     modalVNode.props.onUpdate()

@@ -1,14 +1,15 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 import { html } from 'htm/react'
 
-import { usePearUpdate } from '../../hooks/usePearUpdate'
 import { useSimulatedLoading } from '../../hooks/useSimulatedLoading'
 import { Routes } from '../Routes'
 import { useInactivity } from './hooks/useInactivity'
 import { useOnExtensionExit } from './hooks/useOnExtensionExit'
 import { useOnExtensionLockOut } from './hooks/useOnExtensionLockOut'
 import { useRedirect } from './hooks/useRedirect'
+import { usePearUpdate } from '../../hooks/usePearUpdate'
+import startUpdater from '../../updater'
 
 export const App = () => {
   usePearUpdate()
@@ -28,6 +29,12 @@ export const App = () => {
   // Show LoadingPage during data loading and until the loading animation completes
   const showLoadingPage =
     !isSimulatedLoading && (isDataLoading || !isLoadingPageComplete)
+
+  useEffect(() => {
+    startUpdater().catch((err) => {
+      console.log('INDEX', 'Failed to start updater:', err)
+    })
+  }, [])
 
   return html`
     <${Routes}

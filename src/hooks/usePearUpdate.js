@@ -6,13 +6,21 @@ import { html } from 'htm/react'
 
 import { UpdateRequiredModalContent } from '../containers/Modal/UpdateRequiredModalContent'
 import { useModal } from '../context/ModalContext'
+import { PEAR_RUNTIME_UPDATED_MESSAGE } from '../updater'
 
 export const usePearUpdate = () => {
   const { setModal } = useModal()
   const modalShownRef = useRef(false)
 
   const showUpdateRequiredModal = () => {
-    if (modalShownRef.current || !Pear.config.key) {
+    if (modalShownRef.current) {
+      // eslint-disable-next-line no-console
+      console.log('usePearUpdate: modal already shown, skipping')
+      return
+    }
+    if (!Pear.config.key) {
+      // eslint-disable-next-line no-console
+      console.log('usePearUpdate: Pear.config.key missing, skipping modal')
       return
     }
 
@@ -24,43 +32,15 @@ export const usePearUpdate = () => {
     modalShownRef.current = true
   }
 
-  const checkIfUpdated = async () => {
-    const update = await Pear.updated()
-
-    if (update) {
-      showUpdateRequiredModal()
-    }
-  }
-
-  const onPearUpdate = (update) => {
-    if (shouldIgnoreChanges(update?.diff)) {
-      return
-    }
-
-    // `key` is undefined in DEV mode.
-    if (!Pear.config.key) {
-      // Reload is necessary for hot-reload after TS compile.
-      Pear.reload()
-      return
-    }
-
-    showUpdateRequiredModal()
-  }
-
   useEffect(() => {
-    checkIfUpdated()
-
-    Pear.updates(onPearUpdate)
+    if (typeof Pear?.messages === 'function') {
+      Pear.messages(PEAR_RUNTIME_UPDATED_MESSAGE, (msg) => {
+        const type = typeof msg === 'string' ? msg : msg?.type
+        if (type !== PEAR_RUNTIME_UPDATED_MESSAGE.type) return
+        showUpdateRequiredModal()
+      })
+    }
   }, [])
-}
-
-function shouldIgnoreChanges(diff) {
-  return diff?.every(
-    ({ key: file }) =>
-      file.startsWith('/src') ||
-      file.startsWith('/logs') ||
-      file.includes('pearpass-native-messaging.sock')
-  )
 }
 
 function handleUpdateApp() {
