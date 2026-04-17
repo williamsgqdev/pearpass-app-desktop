@@ -126,6 +126,8 @@
     "build:app": "lingui extract && lingui compile && tsc",
     "lint:fix": "eslint --fix ./src",
     "lint": "eslint ./src",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx}\"",
     "build:worklet": "node scripts/build.worklet.mjs",
     "build": "node scripts/build.worklet.mjs && npm run build:app && node scripts/bundle-renderer.mjs && node scripts/bundle-bridge.mjs",
     "build:prod": "cross-env NODE_ENV=production npm run build",
