@@ -16,7 +16,7 @@ import {
   Wrapper
 } from './styles'
 import { CreateVaultModalContent } from '../../containers/Modal/CreateVaultModalContent'
-import { CreateVaultModalContentV2 } from '../../containers/Modal/CreateVaultModalContentV2/CreateVaultModalContentV2'
+import { CreateOrEditVaultModalContentV2 } from '../../containers/Modal/CreateOrEditVaultModalContentV2/CreateOrEditVaultModalContentV2'
 import { VaultPasswordFormModalContent } from '../../containers/Modal/VaultPasswordFormModalContent'
 import { useModal } from '../../context/ModalContext'
 import { useTranslation } from '../../hooks/useTranslation'
@@ -125,7 +125,7 @@ export const DropdownSwapVault = ({ vaults, selectedVault }: DropdownSwapVaultPr
     setIsOpen(false)
 
     const CreateContent = isV2()
-      ? CreateVaultModalContentV2
+      ? CreateOrEditVaultModalContentV2
       : CreateVaultModalContent
 
     setModal(

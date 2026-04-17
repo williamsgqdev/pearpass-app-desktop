@@ -6,15 +6,17 @@ import { html } from 'htm/react'
 import { Content } from './styles'
 import { CardSingleSetting } from '../../../components/CardSingleSetting'
 import { ListItem } from '../../../components/ListItem'
+import { CreateOrEditVaultModalContentV2 } from '../../../containers/Modal/CreateOrEditVaultModalContentV2/CreateOrEditVaultModalContentV2'
 import { DeleteVaultModalContent } from '../../../containers/Modal/DeleteVaultModalContent'
 import { ModifyVaultModalContent } from '../../../containers/Modal/ModifyVaultModalContent'
 import { useModal } from '../../../context/ModalContext'
+import { isV2 } from '../../../utils/designVersion'
 import { vaultCreatedFormat } from '../../../utils/vaultCreated'
 
 export const SettingsVaultsTab = () => {
   const { i18n } = useLingui()
   const { data: vault } = useVault()
-  const { setModal } = useModal()
+  const { setModal, closeModal } = useModal()
 
   return html`
     <${CardSingleSetting}
@@ -30,13 +32,19 @@ export const SettingsVaultsTab = () => {
           deleteTestId="settings-vault-delete-button"
           itemName="${vault.name}"
           itemDateText=${vaultCreatedFormat(vault.createdAt)}
-          onEditClick=${() =>
-            setModal(
-              html`<${ModifyVaultModalContent}
-                vaultId=${vault.id}
-                vaultName=${vault.name}
-              />`
-            )}
+          onEditClick=${() => {
+            const editModal = isV2()
+              ? html`<${CreateOrEditVaultModalContentV2}
+                  onClose=${closeModal}
+                  onSuccess=${closeModal}
+                  vault=${vault}
+                />`
+              : html`<${ModifyVaultModalContent}
+                  vaultId=${vault.id}
+                  vaultName=${vault.name}
+                />`
+            setModal(editModal)
+          }}
           onDeleteClick=${DELETE_VAULT_ENABLED &&
           (() =>
             setModal(
