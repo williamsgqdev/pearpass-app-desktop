@@ -1,17 +1,18 @@
-const { App } = require("fx-native");
-const bootstrap = require("pear-updater-bootstrap");
-const appling = require("appling-native");
-const { encode, decode, format } = require("./utils");
-const { Progress } = require("./progress");
+const appling = require('appling-native')
+const { App } = require('fx-native')
+const bootstrap = require('pear-updater-bootstrap')
 
-const app = App.shared();
+const { Progress } = require('./progress')
+const { encode, decode, format } = require('./utils')
 
-let config;
-let platform;
-let installing = false; // Guard against concurrent installation
+const app = App.shared()
+
+let config
+let platform
+let installing = false // Guard against concurrent installation
 
 function setup(data) {
-  config = data;
+  config = data
 }
 
 /**
@@ -20,99 +21,99 @@ function setup(data) {
  */
 function validateConfig() {
   if (!config) {
-    return "Configuration not received - setup() was not called";
+    return 'Configuration not received - setup() was not called'
   }
   if (!config.dir) {
-    return "Configuration missing required 'dir' field";
+    return "Configuration missing required 'dir' field"
   }
   if (!config.platform) {
-    return "Configuration missing required 'platform' field";
+    return "Configuration missing required 'platform' field"
   }
   if (!config.link) {
-    return "Configuration missing required 'link' field";
+    return "Configuration missing required 'link' field"
   }
-  return null;
+  return null
 }
 
 async function install() {
   // Prevent concurrent installation attempts
   if (installing) {
-    return;
+    return
   }
 
   // Validate configuration before proceeding
-  const configError = validateConfig();
+  const configError = validateConfig()
   if (configError) {
-    console.error("[worker] Configuration error:", configError);
-    app.broadcast(encode({ type: "error", error: configError }));
-    return;
+    console.error('[worker] Configuration error:', configError)
+    app.broadcast(encode({ type: 'error', error: configError }))
+    return
   }
 
-  installing = true;
-  const progress = new Progress(app, [0.3, 0.7]);
-  let platformFound = false;
-  let bootstrapInterval = null;
+  installing = true
+  const progress = new Progress(app, [0.3, 0.7])
+  let platformFound = false
+  let bootstrapInterval = null
 
   try {
     try {
-      platform = await appling.resolve(config.dir);
-      platformFound = true;
-    } catch (e) {
+      platform = await appling.resolve(config.dir)
+      platformFound = true
+    } catch {
       // Platform not found - bootstrap it
       await bootstrap(config.platform, config.dir, {
         lock: false,
         onupdater: (u) => {
           bootstrapInterval = setInterval(() => {
-            progress.update(format(u));
+            progress.update(format(u))
             if (u.downloadProgress === 1) {
-              clearInterval(bootstrapInterval);
+              clearInterval(bootstrapInterval)
             }
-          }, 250);
-        },
-      });
-      platform = await appling.resolve(config.dir);
+          }, 250)
+        }
+      })
+      platform = await appling.resolve(config.dir)
     }
 
     if (platformFound) {
-      progress.stage(0, 1);
+      progress.stage(0, 1)
     }
 
-    progress.update({ progress: 0, speed: "", peers: 0, bytes: 0 }, 1);
+    progress.update({ progress: 0, speed: '', peers: 0, bytes: 0 }, 1)
 
     await platform.preflight(config.link, (u) => {
-      progress.update(format(u), 1);
-    });
+      progress.update(format(u), 1)
+    })
 
-    progress.complete();
-    app.broadcast(encode({ type: "complete" }));
+    progress.complete()
+    app.broadcast(encode({ type: 'complete' }))
   } catch (e) {
-    console.error("[worker] Installation error:", e.message);
-    app.broadcast(encode({ type: "error", error: e.message }));
+    console.error('[worker] Installation error:', e.message)
+    app.broadcast(encode({ type: 'error', error: e.message }))
   } finally {
     // Always reset installing flag to allow retry
-    installing = false;
+    installing = false
     if (bootstrapInterval) {
-      clearInterval(bootstrapInterval);
+      clearInterval(bootstrapInterval)
     }
   }
 }
 
-app.on("message", async (message) => {
-  const msg = decode(message);
+app.on('message', async (message) => {
+  const msg = decode(message)
 
   // Handle decode failure (malformed JSON)
   if (!msg) {
-    return;
+    return
   }
 
   switch (msg.type) {
-    case "config":
-      setup(msg.data);
-      break;
-    case "install":
-      await install();
-      break;
+    case 'config':
+      setup(msg.data)
+      break
+    case 'install':
+      await install()
+      break
   }
-});
+})
 
-app.broadcast(encode({ type: "ready" }));
+app.broadcast(encode({ type: 'ready' }))

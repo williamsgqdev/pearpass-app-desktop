@@ -1,13 +1,13 @@
-const AUTO_LAUNCH = true;
-const SLOW_TIMEOUT = 180000; // 3 minutes
+const AUTO_LAUNCH = true
+const SLOW_TIMEOUT = 180000 // 3 minutes
 
 // Simple inline SVG for splash - can be replaced with actual PearPass logo
-const splashSvg = require('./images/logo.svg', { with: { type: 'text' } });
+const splashSvg = require('./images/logo.svg', { with: { type: 'text' } })
 
 // Pear logo SVG
-const pearSvg = require('./images/pear.svg', { with: { type: 'text' } });
+const pearSvg = require('./images/pear.svg', { with: { type: 'text' } })
 
-const html = String.raw;
+const html = String.raw
 
 module.exports = html`
   <style>
@@ -43,7 +43,7 @@ module.exports = html`
       margin: 0;
       background: #121212;
       color: var(--color-white);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
         Oxygen, Ubuntu, Cantarell, sans-serif;
       position: relative;
       overflow: hidden;
@@ -57,7 +57,7 @@ module.exports = html`
       left: 3.2%;
       width: 93.6vw;
       height: 52.6vh;
-      background: #B0D944;
+      background: #b0d944;
       border-radius: 50%;
       filter: blur(150px);
       opacity: 0.3;
@@ -133,7 +133,7 @@ module.exports = html`
     footer svg {
       width: 35px;
       height: 47.175px;
-      aspect-ratio: 35.00 / 47.17;
+      aspect-ratio: 35 / 47.17;
     }
 
     button {
@@ -356,93 +356,93 @@ module.exports = html`
     </footer>
   </main>
   <script>
-    const SLOW_TIMEOUT = ${SLOW_TIMEOUT};
-    const AUTO_LAUNCH = ${AUTO_LAUNCH};
+    const SLOW_TIMEOUT = ${SLOW_TIMEOUT}
+    const AUTO_LAUNCH = ${AUTO_LAUNCH}
 
     const elements = {
-      title: document.getElementById("title"),
-      message: document.getElementById("message"),
-      status: document.getElementById("status"),
-      progress: document.getElementById("progress"),
-      stats: document.getElementById("stats"),
-      warning: document.getElementById("warning"),
-      buttonGroup: document.getElementById("buttonGroup"),
-      installBtn: document.getElementById("installBtn"),
-      quitBtn: document.getElementById("quitBtn"),
-      retryBtn: document.getElementById("retryBtn"),
-      launchBtn: document.getElementById("launchBtn"),
-    };
+      title: document.getElementById('title'),
+      message: document.getElementById('message'),
+      status: document.getElementById('status'),
+      progress: document.getElementById('progress'),
+      stats: document.getElementById('stats'),
+      warning: document.getElementById('warning'),
+      buttonGroup: document.getElementById('buttonGroup'),
+      installBtn: document.getElementById('installBtn'),
+      quitBtn: document.getElementById('quitBtn'),
+      retryBtn: document.getElementById('retryBtn'),
+      launchBtn: document.getElementById('launchBtn')
+    }
 
-    let timer = null;
+    let timer = null
 
     function startTimer() {
-      timer = setTimeout(() => setState("slow"), SLOW_TIMEOUT);
+      timer = setTimeout(() => setState('slow'), SLOW_TIMEOUT)
     }
 
     function onMessage(element, fn) {
-      element.addEventListener("message", fn);
+      element.addEventListener('message', fn)
     }
 
     function onClick(element, fn) {
-      element.addEventListener("click", fn);
+      element.addEventListener('click', fn)
     }
 
     function resetElements(e) {
-      e.installBtn.classList.add("hidden");
-      e.status.classList.remove("hidden");
-      e.progress.classList.remove("red", "green", "complete");
-      e.warning.textContent = "";
-      e.warning.classList.add("hidden");
-      e.warning.classList.remove("error");
-      e.buttonGroup.classList.add("hidden");
-      e.launchBtn.classList.add("hidden");
+      e.installBtn.classList.add('hidden')
+      e.status.classList.remove('hidden')
+      e.progress.classList.remove('red', 'green', 'complete')
+      e.warning.textContent = ''
+      e.warning.classList.add('hidden')
+      e.warning.classList.remove('error')
+      e.buttonGroup.classList.add('hidden')
+      e.launchBtn.classList.add('hidden')
     }
 
     function setProgress({ speed, peers, progress, stage, bytes }) {
       // Update stats
       if (bytes || speed || peers !== undefined) {
         const parts = [
-          bytes && '<span class="bytes">' + bytes + "</span>",
-          speed && '<span class="speed">' + speed + "</span>",
+          bytes && '<span class="bytes">' + bytes + '</span>',
+          speed && '<span class="speed">' + speed + '</span>',
           peers !== undefined &&
             '<span class="peers">' +
               peers +
-              " " +
-              (peers === 1 ? "peer" : "peers") +
-              "</span>",
-        ].filter(Boolean);
-        elements.stats.innerHTML = parts.join("<span>•</span>");
+              ' ' +
+              (peers === 1 ? 'peer' : 'peers') +
+              '</span>'
+        ].filter(Boolean)
+        elements.stats.innerHTML = parts.join('<span>•</span>')
       }
 
       // Update progress
       if (progress !== undefined) {
-        elements.progress.classList.remove("indeterminate");
-        elements.progress.classList.add("determinate");
-        const progressBar = elements.progress.querySelector("div");
+        elements.progress.classList.remove('indeterminate')
+        elements.progress.classList.add('determinate')
+        const progressBar = elements.progress.querySelector('div')
 
         // Update ARIA attributes for accessibility
-        elements.progress.setAttribute("aria-valuenow", Math.round(progress));
+        elements.progress.setAttribute('aria-valuenow', Math.round(progress))
 
         // Enable transitions after first frame
         if (progress > 0) {
-          elements.progress.classList.add("transitioning");
+          elements.progress.classList.add('transitioning')
         }
 
         if (progress === 0) {
-          elements.warning.textContent = "Starting platform installation";
-          elements.warning.classList.remove("hidden", "error");
+          elements.warning.textContent = 'Starting platform installation'
+          elements.warning.classList.remove('hidden', 'error')
         }
 
-        progressBar.style.width = progress + "%";
+        progressBar.style.width = progress + '%'
       }
 
       if (progress !== 0) {
         if (stage === 0) {
-          elements.warning.textContent = "Installing platform...";
-          elements.warning.classList.remove("hidden", "error");
+          elements.warning.textContent = 'Installing platform...'
+          elements.warning.classList.remove('hidden', 'error')
         } else if (stage === 1) {
-          elements.warning.textContent = "Platform ready, installing app...";
-          elements.warning.classList.remove("hidden", "error");
+          elements.warning.textContent = 'Platform ready, installing app...'
+          elements.warning.classList.remove('hidden', 'error')
         }
       }
     }
@@ -455,78 +455,78 @@ module.exports = html`
         progress,
         warning,
         buttonGroup,
-        launchBtn,
-      } = elements;
+        launchBtn
+      } = elements
 
-      resetElements(elements);
-      clearTimeout(timer);
-      timer = null;
+      resetElements(elements)
+      clearTimeout(timer)
+      timer = null
 
       switch (state) {
-        case "installing":
-          title.textContent = "Welcome to PearPass";
-          message.textContent = "It will launch once it is done.";
-          break;
-        case "slow":
-          title.textContent = "Welcome to PearPass";
-          message.textContent = "It will launch once it is done.";
+        case 'installing':
+          title.textContent = 'Welcome to PearPass'
+          message.textContent = 'It will launch once it is done.'
+          break
+        case 'slow':
+          title.textContent = 'Welcome to PearPass'
+          message.textContent = 'It will launch once it is done.'
           warning.textContent =
-            "It's taking a bit of time, please check your connection.";
-          warning.classList.remove("hidden");
-          break;
-        case "error":
-          title.textContent = "Welcome to PearPass";
-          message.textContent = "It will launch once it is done.";
-          progress.classList.add("red");
-          warning.textContent = "Installation didn't complete.";
-          warning.classList.remove("hidden");
-          warning.classList.add("error");
-          buttonGroup.classList.remove("hidden");
-          break;
-        case "complete":
-          title.textContent = "Installation complete!";
-          progress.classList.add("complete");
+            "It's taking a bit of time, please check your connection."
+          warning.classList.remove('hidden')
+          break
+        case 'error':
+          title.textContent = 'Welcome to PearPass'
+          message.textContent = 'It will launch once it is done.'
+          progress.classList.add('red')
+          warning.textContent = "Installation didn't complete."
+          warning.classList.remove('hidden')
+          warning.classList.add('error')
+          buttonGroup.classList.remove('hidden')
+          break
+        case 'complete':
+          title.textContent = 'Installation complete!'
+          progress.classList.add('complete')
           if (AUTO_LAUNCH) {
-            message.textContent = "PearPass will launch shortly";
-            setTimeout(() => bridge.postMessage("launch"), 500);
+            message.textContent = 'PearPass will launch shortly'
+            setTimeout(() => bridge.postMessage('launch'), 500)
           } else {
-            message.textContent = "PearPass is ready to launch.";
-            launchBtn.classList.remove("hidden");
+            message.textContent = 'PearPass is ready to launch.'
+            launchBtn.classList.remove('hidden')
           }
-          break;
+          break
       }
     }
 
     onMessage(bridge, (event) => {
-      const { type, state, data } = event.data || {};
+      const { type, state, data } = event.data || {}
       switch (type) {
-        case "state":
-          setState(state);
-          break;
-        case "progress":
-          setProgress(data);
-          break;
+        case 'state':
+          setState(state)
+          break
+        case 'progress':
+          setProgress(data)
+          break
       }
-    });
+    })
 
     onClick(elements.installBtn, () => {
-      setState("installing");
-      bridge.postMessage("install");
-      startTimer();
-    });
+      setState('installing')
+      bridge.postMessage('install')
+      startTimer()
+    })
 
     onClick(elements.retryBtn, () => {
-      setState("installing");
-      bridge.postMessage("install");
-      startTimer();
-    });
+      setState('installing')
+      bridge.postMessage('install')
+      startTimer()
+    })
 
     onClick(elements.quitBtn, () => {
-      bridge.postMessage("quit");
-    });
+      bridge.postMessage('quit')
+    })
 
     onClick(elements.launchBtn, () => {
-      bridge.postMessage("launch");
-    });
+      bridge.postMessage('launch')
+    })
   </script>
-`;
+`

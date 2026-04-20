@@ -1,4 +1,5 @@
-import { test, expect } from '../../fixtures/app.runner.js'
+import { qase } from 'playwright-qase-reporter'
+
 import {
   LoginPage,
   VaultSelectPage,
@@ -7,34 +8,41 @@ import {
   CreateOrEditPage,
   Utilities,
   DetailsPage
-} from '../../components/index.js';
-import testData from '../../fixtures/test-data.js';
-import { qase } from 'playwright-qase-reporter';
+} from '../../components/index.js'
+import { test, expect } from '../../fixtures/app.runner.js'
+import testData from '../../fixtures/test-data.js'
 
 test.describe('Creating Credit Card Item', async () => {
   test.describe.configure({ mode: 'serial' })
 
-  let loginPage, vaultSelectPage, createOrEditPage, sideMenuPage, mainPage, utilities, detailsPage, page
+  let loginPage,
+    vaultSelectPage,
+    createOrEditPage,
+    sideMenuPage,
+    mainPage,
+    utilities,
+    detailsPage,
+    page
 
   test.beforeAll(async ({ app }) => {
-    page = await app.getPage();
-    const root = page.locator('body');
-    loginPage = new LoginPage(root);
-    vaultSelectPage = new VaultSelectPage(root);
-    sideMenuPage = new SideMenuPage(root);
-    createOrEditPage = new CreateOrEditPage(root);
-    utilities = new Utilities(root);
-    mainPage = new MainPage(root);
-    detailsPage = new DetailsPage(root);
+    page = await app.getPage()
+    const root = page.locator('body')
+    loginPage = new LoginPage(root)
+    vaultSelectPage = new VaultSelectPage(root)
+    sideMenuPage = new SideMenuPage(root)
+    createOrEditPage = new CreateOrEditPage(root)
+    utilities = new Utilities(root)
+    mainPage = new MainPage(root)
+    detailsPage = new DetailsPage(root)
 
-    await loginPage.loginToApplication(testData.credentials.validPassword);
-    await vaultSelectPage.selectVaultbyName(testData.vault.name);
+    await loginPage.loginToApplication(testData.credentials.validPassword)
+    await vaultSelectPage.selectVaultbyName(testData.vault.name)
 
-    await sideMenuPage.selectSideBarCategory('creditCard');
-    await utilities.deleteAllElements();
-    await mainPage.clickCreateNewElementButton('Create a credit card');
+    await sideMenuPage.selectSideBarCategory('creditCard')
+    await utilities.deleteAllElements()
+    await mainPage.clickCreateNewElementButton('Create a credit card')
 
-    await page.waitForTimeout(testData.timeouts.action);
+    await page.waitForTimeout(testData.timeouts.action)
   })
 
   test.beforeEach(async ({ app }) => {
@@ -55,7 +63,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('Creating the "Credit Card" item', async ({ page }) => {
-    qase.id(2115);
+    qase.id(2115)
     await createOrEditPage.fillCreateOrEditInput('title', 'Credit Card Title')
     await createOrEditPage.fillCreateOrEditInput('fullname', 'John')
     await createOrEditPage.fillCreateOrEditInput('number', '1231 2312')
@@ -67,12 +75,15 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('Viewing created item. Verify item details', async ({ page }) => {
-    qase.id(2116);
+    qase.id(2116)
     await mainPage.verifyElementTitle('Credit Card Title')
     await mainPage.openElementDetails()
 
-    await detailsPage.verifyItemDetailsValue('Full name', 'John');
-    await detailsPage.verifyItemDetailsValue('1234 1234 1234 1234 ', '1231 2312')
+    await detailsPage.verifyItemDetailsValue('Full name', 'John')
+    await detailsPage.verifyItemDetailsValue(
+      '1234 1234 1234 1234 ',
+      '1231 2312'
+    )
     await detailsPage.verifyItemDetailsValue('MM YY', '12 12')
     await detailsPage.verifyItemDetailsValue('123', '111')
     await detailsPage.verifyItemDetailsValue('1234', '5555')
@@ -80,7 +91,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('Password visibility icon displays/hides value', async ({ page }) => {
-    qase.id(2117);
+    qase.id(2117)
     expect(createOrEditPage.verifyItemType('123', 'password'))
     await createOrEditPage.clickShowHidePasswordButtonFirst()
     expect(createOrEditPage.verifyItemType('123', 'text'))
@@ -90,7 +101,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('Dropdown moves to selected item edit screen', async ({ page }) => {
-    qase.id(2118);
+    qase.id(2118)
     await mainPage.verifyElementTitle('Credit Card Title')
     await sideMenuPage.clickSidebarAddButton()
     await detailsPage.fillCreateNewFolderTitleInput('Test Folder')
@@ -104,7 +115,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('Item moved to folder (and cleanup)', async ({ page }) => {
-    qase.id(2119);
+    qase.id(2119)
     await sideMenuPage.verifySidebarFolderName('Test Folder')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -115,7 +126,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('Add via Favorite icon', async ({ page }) => {
-    qase.id(2120);
+    qase.id(2120)
     await sideMenuPage.selectSideBarCategory('all')
     await mainPage.verifyElementTitle('Credit Card Title')
     await mainPage.openElementDetails()
@@ -126,7 +137,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('Remove via Favorite icon', async ({ page }) => {
-    qase.id(2121);
+    qase.id(2121)
     await mainPage.openElementDetails()
     await detailsPage.clickFavoriteButton()
     await expect(detailsPage.getFavoriteAvatar('CC')).not.toBeVisible()
@@ -134,7 +145,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('Add via More options', async ({ page }) => {
-    qase.id(2122);
+    qase.id(2122)
     await mainPage.openElementDetails()
     await detailsPage.openItemBarThreeDotsDropdownMenu()
     await detailsPage.clickMarkAsFavoriteButton()
@@ -143,7 +154,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('Remove via More options', async ({ page }) => {
-    qase.id(2123);
+    qase.id(2123)
     await mainPage.openElementDetails()
     await detailsPage.openItemBarThreeDotsDropdownMenu()
     await detailsPage.clickRemoveFromFavoritesButton()
@@ -152,7 +163,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('Add Custom Note', async ({ page }) => {
-    qase.id(2124);
+    qase.id(2124)
     await mainPage.verifyElementTitle('Credit Card Title')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -167,7 +178,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('Delete Note field', async ({ page }) => {
-    qase.id(2125);
+    qase.id(2125)
     await mainPage.verifyElementTitle('Credit Card Title')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -180,7 +191,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('Close via Cross icon', async ({ page }) => {
-    qase.id(2126);
+    qase.id(2126)
     await mainPage.verifyElementTitle('Credit Card Title')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -189,7 +200,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('View uploaded file in Edit mode', async ({ page }) => {
-    qase.id(2127);
+    qase.id(2127)
     await mainPage.verifyElementTitle('Credit Card Title')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -205,7 +216,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('View uploaded file in View mode (and cleanup)', async ({ page }) => {
-    qase.id(2128);
+    qase.id(2128)
     await mainPage.openElementDetails()
     await detailsPage.verifyUploadedFileIsVisible()
     await detailsPage.clickOnUploadedFile()
@@ -219,7 +230,7 @@ test.describe('Creating Credit Card Item', async () => {
   })
 
   test('Empty fields not displayed in view mode', async ({ page }) => {
-    qase.id(2129);
+    qase.id(2129)
     await mainPage.verifyElementTitle('Credit Card Title')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -240,5 +251,4 @@ test.describe('Creating Credit Card Item', async () => {
     await detailsPage.verifyItemDetailsValueIsNotVisible('MM YY')
     await mainPage.clickDetailsCloseButton()
   })
-
 })

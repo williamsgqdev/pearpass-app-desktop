@@ -48,7 +48,7 @@ declare module '@tetherto/pearpass-lib-vault' {
     resetState: () => void
     updateUnprotectedVault: (
       vaultId: string,
-      vaultUpdate: { name: string; password: string }
+      vaultUpdate: { name: string; password?: string }
     ) => Promise<void>
     updateProtectedVault: (
       vaultId: string,
@@ -206,6 +206,29 @@ declare module '@tetherto/pearpass-lib-vault' {
 
   export const useRecords: any
   export const useBlindMirrors: any
+}
+
+declare module '@tetherto/pearpass-utils-password-check' {
+  export type PasswordStrengthType = 'error' | 'warning' | 'success'
+
+  export function checkPasswordStrength(password: string): {
+    strengthType: PasswordStrengthType
+    errors?: string[]
+  }
+
+  export function validatePasswordChange(params: {
+    currentPassword: string
+    newPassword: string
+    repeatPassword: string
+    messages: {
+      newPasswordMustDiffer: string
+      passwordsDontMatch: string
+    }
+  }): {
+    success: boolean
+    field: 'newPassword' | 'repeatPassword'
+    error: string
+  }
 }
 
 declare module '@tetherto/pear-apps-lib-ui-react-hooks' {

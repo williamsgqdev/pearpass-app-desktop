@@ -84,10 +84,7 @@ module.exports = {
       fs.writeFileSync(
         manifestPath,
         manifest
-          .replace(
-            /Version="\d+\.\d+\.\d+\.\d+"/,
-            `Version="${msixVersion}"`
-          )
+          .replace(/Version="\d+\.\d+\.\d+\.\d+"/, `Version="${msixVersion}"`)
           .replace(
             /ProcessorArchitecture="\w+"/,
             `ProcessorArchitecture="${msixArch}"`

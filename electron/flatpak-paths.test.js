@@ -14,7 +14,9 @@ describe('flatpak path helpers', () => {
   }
 
   it('detects flatpak via FLATPAK_ID', () => {
-    expect(isFlatpakRuntime({ env: { FLATPAK_ID: 'com.pears.pass' } })).toBe(true)
+    expect(isFlatpakRuntime({ env: { FLATPAK_ID: 'com.pears.pass' } })).toBe(
+      true
+    )
   })
 
   it('derives flatpak compatibility roots under the user config directory', () => {
@@ -27,7 +29,10 @@ describe('flatpak path helpers', () => {
 
   it('maps host-side flatpak config paths into sandbox-safe paths', () => {
     expect(
-      mapFlatpakPathToSandbox('/home/alvaro/.var/app/com.pears.pass/config/PearPass', { env })
+      mapFlatpakPathToSandbox(
+        '/home/alvaro/.var/app/com.pears.pass/config/PearPass',
+        { env }
+      )
     ).toBe('/home/alvaro/.config/PearPass')
   })
 
@@ -35,8 +40,12 @@ describe('flatpak path helpers', () => {
     const targetPath = '/home/alvaro/.var/app/com.pears.pass/data/PearPass'
 
     expect(
-      getSandboxSafePath(targetPath, { env: { ...env, FLATPAK_ID: 'com.pears.pass' } })
+      getSandboxSafePath(targetPath, {
+        env: { ...env, FLATPAK_ID: 'com.pears.pass' }
+      })
     ).toBe('/home/alvaro/.config/pearpass-flatpak-data/PearPass')
-    expect(getSandboxSafePath(targetPath, { env, existsSync: () => false })).toBe(targetPath)
+    expect(
+      getSandboxSafePath(targetPath, { env, existsSync: () => false })
+    ).toBe(targetPath)
   })
 })

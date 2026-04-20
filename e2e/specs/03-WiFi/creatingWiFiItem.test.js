@@ -1,4 +1,5 @@
-import { test, expect } from '../../fixtures/app.runner.js'
+import { qase } from 'playwright-qase-reporter'
+
 import {
   LoginPage,
   VaultSelectPage,
@@ -7,28 +8,35 @@ import {
   CreateOrEditPage,
   Utilities,
   DetailsPage
-} from '../../components/index.js';
-import testData from '../../fixtures/test-data.js';
-import { qase } from 'playwright-qase-reporter';
+} from '../../components/index.js'
+import { test, expect } from '../../fixtures/app.runner.js'
+import testData from '../../fixtures/test-data.js'
 
 test.describe('Creating WiFi Item', () => {
   test.describe.configure({ mode: 'serial' })
 
-  let loginPage, vaultSelectPage, createOrEditPage, sideMenuPage, mainPage, utilities, detailsPage, page
+  let loginPage,
+    vaultSelectPage,
+    createOrEditPage,
+    sideMenuPage,
+    mainPage,
+    utilities,
+    detailsPage,
+    page
 
   test.beforeAll(async ({ app }) => {
-    page = await app.getPage();
-    const root = page.locator('body');
-    loginPage = new LoginPage(root);
-    vaultSelectPage = new VaultSelectPage(root);
-    sideMenuPage = new SideMenuPage(root);
-    createOrEditPage = new CreateOrEditPage(root);
-    utilities = new Utilities(root);
-    mainPage = new MainPage(root);
-    detailsPage = new DetailsPage(root);
+    page = await app.getPage()
+    const root = page.locator('body')
+    loginPage = new LoginPage(root)
+    vaultSelectPage = new VaultSelectPage(root)
+    sideMenuPage = new SideMenuPage(root)
+    createOrEditPage = new CreateOrEditPage(root)
+    utilities = new Utilities(root)
+    mainPage = new MainPage(root)
+    detailsPage = new DetailsPage(root)
 
-    await loginPage.loginToApplication(testData.credentials.validPassword);
-    await vaultSelectPage.selectVaultbyName(testData.vault.name);
+    await loginPage.loginToApplication(testData.credentials.validPassword)
+    await vaultSelectPage.selectVaultbyName(testData.vault.name)
 
     await sideMenuPage.selectSideBarCategory('wifiPassword')
     await utilities.deleteAllElements()
@@ -53,7 +61,7 @@ test.describe('Creating WiFi Item', () => {
   })
 
   test('Creating the "WiFi" item', async ({ page }) => {
-    qase.id(2135);
+    qase.id(2135)
     await createOrEditPage.fillCreateOrEditInput('wifiname', 'WiFi Title')
     await createOrEditPage.fillCreateOrEditInput('wifipassword', 'WiFi Pass')
     await createOrEditPage.fillCreateOrEditInput('note', 'WiFi Note')
@@ -61,15 +69,15 @@ test.describe('Creating WiFi Item', () => {
   })
 
   test('Viewing created item. Verify item details', async ({ page }) => {
-    qase.id(2136);
+    qase.id(2136)
     await mainPage.openElementDetails()
-    await detailsPage.verifyTitle('WiFi Title');
+    await detailsPage.verifyTitle('WiFi Title')
     await detailsPage.verifyItemDetailsValue('Password', 'WiFi Pass')
     await detailsPage.verifyItemDetailsValue('Add comment', 'WiFi Note')
   })
 
   test('Password visibility icon displays/hides value', async ({ page }) => {
-    qase.id(2137);
+    qase.id(2137)
     await mainPage.openElementDetails()
     await mainPage.verifyElementTitle('WiFi Title')
     await createOrEditPage.verifyPasswordType('password')
@@ -78,7 +86,7 @@ test.describe('Creating WiFi Item', () => {
   })
 
   test('Dropdown moves to selected item edit screen', async ({ page }) => {
-    qase.id(2138);
+    qase.id(2138)
     await mainPage.verifyElementTitle('WiFi Title')
     await sideMenuPage.clickSidebarAddButton()
     await detailsPage.fillCreateNewFolderTitleInput('Test Folder')
@@ -92,7 +100,7 @@ test.describe('Creating WiFi Item', () => {
   })
 
   test('Item moved to folder (and cleanup)', async ({ page }) => {
-    qase.id(2139);
+    qase.id(2139)
     await sideMenuPage.verifySidebarFolderName('Test Folder')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -103,7 +111,7 @@ test.describe('Creating WiFi Item', () => {
   })
 
   test('Add via Favorite icon', async ({ page }) => {
-    qase.id(2140);
+    qase.id(2140)
     await sideMenuPage.selectSideBarCategory('all')
     await mainPage.verifyElementTitle('WiFi Title')
     await mainPage.openElementDetails()
@@ -114,7 +122,7 @@ test.describe('Creating WiFi Item', () => {
   })
 
   test('Remove via Favorite icon', async ({ page }) => {
-    qase.id(2141);
+    qase.id(2141)
     await mainPage.openElementDetails()
     await detailsPage.clickFavoriteButton()
     await expect(detailsPage.getFavoriteAvatar('WT')).not.toBeVisible()
@@ -122,7 +130,7 @@ test.describe('Creating WiFi Item', () => {
   })
 
   test('Add via More options', async ({ page }) => {
-    qase.id(2142);
+    qase.id(2142)
     await mainPage.openElementDetails()
     await detailsPage.openItemBarThreeDotsDropdownMenu()
     await detailsPage.clickMarkAsFavoriteButton()
@@ -131,7 +139,7 @@ test.describe('Creating WiFi Item', () => {
   })
 
   test('Remove via More options', async ({ page }) => {
-    qase.id(2143);
+    qase.id(2143)
     await mainPage.openElementDetails()
     await detailsPage.openItemBarThreeDotsDropdownMenu()
     await detailsPage.clickRemoveFromFavoritesButton()
@@ -140,7 +148,7 @@ test.describe('Creating WiFi Item', () => {
   })
 
   test('Add Custom Note', async ({ page }) => {
-    qase.id(2144);
+    qase.id(2144)
     await mainPage.verifyElementTitle('WiFi Title')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -154,7 +162,7 @@ test.describe('Creating WiFi Item', () => {
   })
 
   test('Delete Note field', async ({ page }) => {
-    qase.id(2145);
+    qase.id(2145)
     await mainPage.verifyElementTitle('WiFi Title')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -167,7 +175,7 @@ test.describe('Creating WiFi Item', () => {
   })
 
   test('Close via Cross icon', async ({ page }) => {
-    qase.id(2146);
+    qase.id(2146)
     await mainPage.verifyElementTitle('WiFi Title')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -176,14 +184,14 @@ test.describe('Creating WiFi Item', () => {
   })
 
   test('Empty fields not displayed in view mode', async ({ page }) => {
-    qase.id(2147);
+    qase.id(2147)
     await mainPage.verifyElementTitle('WiFi Title')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
     await createOrEditPage.fillCreateOrEditInput('note', '')
     await createOrEditPage.clickOnCreateOrEditButton('save')
     await mainPage.openElementDetails()
-    await detailsPage.verifyTitle('WiFi Title');
+    await detailsPage.verifyTitle('WiFi Title')
     await detailsPage.verifyItemDetailsValueIsNotVisible('Add comment')
     await mainPage.clickDetailsCloseButton()
   })

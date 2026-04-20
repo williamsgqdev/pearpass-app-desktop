@@ -1,4 +1,6 @@
-import { test, expect } from '../../fixtures/app.runner.js'
+import clipboard from 'clipboardy'
+import { qase } from 'playwright-qase-reporter'
+
 import {
   LoginPage,
   VaultSelectPage,
@@ -7,34 +9,40 @@ import {
   CreateOrEditPage,
   Utilities,
   DetailsPage
-} from '../../components/index.js';
-import testData from '../../fixtures/test-data.js';
-import clipboard from 'clipboardy';
-import { qase } from 'playwright-qase-reporter';
+} from '../../components/index.js'
+import { test, expect } from '../../fixtures/app.runner.js'
+import testData from '../../fixtures/test-data.js'
 
 test.describe('Creating PassPhrase Item', () => {
   test.describe.configure({ mode: 'serial' })
 
-  let loginPage, vaultSelectPage, createOrEditPage, sideMenuPage, mainPage, utilities, detailsPage, page
+  let loginPage,
+    vaultSelectPage,
+    createOrEditPage,
+    sideMenuPage,
+    mainPage,
+    utilities,
+    detailsPage,
+    page
 
   test.beforeAll(async ({ app }) => {
-    page = await app.getPage();
-    const root = page.locator('body');
-    loginPage = new LoginPage(root);
-    vaultSelectPage = new VaultSelectPage(root);
-    sideMenuPage = new SideMenuPage(root);
-    utilities = new Utilities(root);
-    mainPage = new MainPage(root);
+    page = await app.getPage()
+    const root = page.locator('body')
+    loginPage = new LoginPage(root)
+    vaultSelectPage = new VaultSelectPage(root)
+    sideMenuPage = new SideMenuPage(root)
+    utilities = new Utilities(root)
+    mainPage = new MainPage(root)
 
-    await loginPage.loginToApplication(testData.credentials.validPassword);
-    await vaultSelectPage.selectVaultbyName(testData.vault.name);
+    await loginPage.loginToApplication(testData.credentials.validPassword)
+    await vaultSelectPage.selectVaultbyName(testData.vault.name)
 
     await sideMenuPage.selectSideBarCategory('passPhrase')
     await utilities.deleteAllElements()
     await mainPage.clickCreateNewElementButton('Save a Recovery phrase')
 
-    await page.waitForTimeout(testData.timeouts.action);
-  });
+    await page.waitForTimeout(testData.timeouts.action)
+  })
 
   test.beforeEach(async ({ app }) => {
     page = await app.getPage()
@@ -46,7 +54,6 @@ test.describe('Creating PassPhrase Item', () => {
     createOrEditPage = new CreateOrEditPage(root)
     utilities = new Utilities(root)
     detailsPage = new DetailsPage(root)
-
   })
 
   test.afterAll(async () => {
@@ -55,37 +62,39 @@ test.describe('Creating PassPhrase Item', () => {
   })
 
   test('Creating the "PassPhrase" item', async ({ page }) => {
-    qase.id(2209);
+    qase.id(2209)
     await createOrEditPage.fillCreateOrEditInput('title', 'PassPhrase Title')
 
-    await clipboard.write('word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12')
+    await clipboard.write(
+      'word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12'
+    )
     await createOrEditPage.clickOnPasteFromClipboard()
     await createOrEditPage.clickOnCreateOrEditButton('save')
     await page.waitForTimeout(testData.timeouts.action)
   })
 
   test('Viewing created item. Verify item details', async ({ page }) => {
-    qase.id(2210);
+    qase.id(2210)
     await mainPage.verifyElementTitle('PassPhrase Title')
     await mainPage.openElementDetails()
     await detailsPage.verifyAllRecoveryPhraseWords([
-        '#1word1',
-        '#2word2',
-        '#3word3',
-        '#4word4',
-        '#5word5',
-        '#6word6',
-        '#7word7',
-        '#8word8',
-        '#9word9',
-        '#10word10',
-        '#11word11',
-        '#12word12'
-      ]);
+      '#1word1',
+      '#2word2',
+      '#3word3',
+      '#4word4',
+      '#5word5',
+      '#6word6',
+      '#7word7',
+      '#8word8',
+      '#9word9',
+      '#10word10',
+      '#11word11',
+      '#12word12'
+    ])
   })
 
   test('Dropdown moves to selected item edit screen', async ({ page }) => {
-    qase.id(2211);
+    qase.id(2211)
     await mainPage.verifyElementTitle('PassPhrase Title')
     await sideMenuPage.clickSidebarAddButton()
     await detailsPage.fillCreateNewFolderTitleInput('Test Folder')
@@ -99,7 +108,7 @@ test.describe('Creating PassPhrase Item', () => {
   })
 
   test('Item moved to folder (and cleanup)', async ({ page }) => {
-    qase.id(2212);
+    qase.id(2212)
     await sideMenuPage.verifySidebarFolderName('Test Folder')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -111,7 +120,7 @@ test.describe('Creating PassPhrase Item', () => {
   })
 
   test('Add via Favorite icon', async ({ page }) => {
-    qase.id(2213);
+    qase.id(2213)
     await sideMenuPage.selectSideBarCategory('all')
     await mainPage.verifyElementTitle('PassPhrase Title')
     await mainPage.openElementDetails()
@@ -122,7 +131,7 @@ test.describe('Creating PassPhrase Item', () => {
   })
 
   test('Remove via Favorite icon', async ({ page }) => {
-    qase.id(2214);
+    qase.id(2214)
     await mainPage.openElementDetails()
     await detailsPage.clickFavoriteButton()
     await expect(detailsPage.getFavoriteAvatar('PT')).not.toBeVisible()
@@ -130,7 +139,7 @@ test.describe('Creating PassPhrase Item', () => {
   })
 
   test('Add via More options', async ({ page }) => {
-    qase.id(2215);
+    qase.id(2215)
     await mainPage.openElementDetails()
     await detailsPage.openItemBarThreeDotsDropdownMenu()
     await detailsPage.clickMarkAsFavoriteButton()
@@ -139,7 +148,7 @@ test.describe('Creating PassPhrase Item', () => {
   })
 
   test('Remove via More options', async ({ page }) => {
-    qase.id(2216);
+    qase.id(2216)
     await mainPage.openElementDetails()
     await detailsPage.openItemBarThreeDotsDropdownMenu()
     await detailsPage.clickRemoveFromFavoritesButton()
@@ -147,7 +156,6 @@ test.describe('Creating PassPhrase Item', () => {
     await expect(mainPage.getElementFavoriteIcon('PT')).not.toBeVisible()
   })
 
-  
   // test('Add Custom Note', async ({ page }) => {
   //   qase.id(2217);
   //   await mainPage.verifyElementTitle('PassPhrase Title')
@@ -176,12 +184,11 @@ test.describe('Creating PassPhrase Item', () => {
   // })
 
   test('Close via Cross icon', async ({ page }) => {
-    qase.id(2219);
+    qase.id(2219)
     await mainPage.verifyElementTitle('PassPhrase Title')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
     await detailsPage.clickElementItemCloseButton()
     await mainPage.verifyElementTitle('PassPhrase Title')
   })
-
 })

@@ -1,4 +1,4 @@
-const prettyBytes = require("prettier-bytes");
+const prettyBytes = require('prettier-bytes')
 
 /**
  * Encodes an object to JSON string for IPC messaging.
@@ -6,7 +6,7 @@ const prettyBytes = require("prettier-bytes");
  * @returns {string} JSON string representation
  */
 function encode(msg) {
-  return JSON.stringify(msg);
+  return JSON.stringify(msg)
 }
 
 /**
@@ -16,10 +16,10 @@ function encode(msg) {
  */
 function decode(msg) {
   try {
-    return JSON.parse(msg.toString());
+    return JSON.parse(msg.toString())
   } catch (err) {
-    console.error("[decode] Failed to parse JSON:", err.message);
-    return null;
+    console.error('[decode] Failed to parse JSON:', err.message)
+    return null
   }
 }
 
@@ -36,28 +36,28 @@ function format(u) {
       speed: undefined,
       progress: undefined,
       peers: undefined,
-      bytes: undefined,
-    };
+      bytes: undefined
+    }
   }
 
   // Format for Hyperswarm updater (has drive.core property)
   if (u.drive?.core) {
     return {
-      speed: prettyBytes(u.downloadSpeed()) + "/s",
+      speed: prettyBytes(u.downloadSpeed()) + '/s',
       progress: u.downloadProgress,
       peers: u.drive.core.peers.length,
-      bytes: u.downloadedBytes,
-    };
+      bytes: u.downloadedBytes
+    }
   }
 
   // Format for Bootstrap updater (has direct properties)
   return {
     speed:
-      u.downloadSpeed === 0 ? undefined : prettyBytes(u.downloadSpeed) + "/s",
+      u.downloadSpeed === 0 ? undefined : prettyBytes(u.downloadSpeed) + '/s',
     progress: u.downloadProgress === 0 ? undefined : u.downloadProgress,
     peers: u.peers === 0 ? undefined : u.peers,
-    bytes: u.downloadedBytes,
-  };
+    bytes: u.downloadedBytes
+  }
 }
 
-module.exports = { encode, decode, format };
+module.exports = { encode, decode, format }

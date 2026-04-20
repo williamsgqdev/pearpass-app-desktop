@@ -32,7 +32,9 @@ exports.default = async function afterPack(context) {
   const renamedBin = path.join(appOutDir, `${execName}.bin`)
 
   if (!fs.existsSync(realBin)) {
-    console.warn(`afterPack: executable not found at ${realBin}, skipping wrapper`)
+    console.warn(
+      `afterPack: executable not found at ${realBin}, skipping wrapper`
+    )
     return
   }
 

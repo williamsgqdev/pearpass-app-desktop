@@ -1,4 +1,5 @@
-import { test, expect } from '../../fixtures/app.runner.js'
+import { qase } from 'playwright-qase-reporter'
+
 import {
   LoginPage,
   VaultSelectPage,
@@ -7,33 +8,40 @@ import {
   CreateOrEditPage,
   Utilities,
   DetailsPage
-} from '../../components/index.js';
-import testData from '../../fixtures/test-data.js';
-import { qase } from 'playwright-qase-reporter';
+} from '../../components/index.js'
+import { test, expect } from '../../fixtures/app.runner.js'
+import testData from '../../fixtures/test-data.js'
 
 test.describe('Creating Note Item', () => {
   test.describe.configure({ mode: 'serial' })
 
-  let loginPage, vaultSelectPage, createOrEditPage, sideMenuPage, mainPage, utilities, detailsPage, page
+  let loginPage,
+    vaultSelectPage,
+    createOrEditPage,
+    sideMenuPage,
+    mainPage,
+    utilities,
+    detailsPage,
+    page
 
   test.beforeAll(async ({ app }) => {
-    page = await app.getPage();
-    const root = page.locator('body');
-    loginPage = new LoginPage(root);
-    vaultSelectPage = new VaultSelectPage(root);
-    sideMenuPage = new SideMenuPage(root);
-    utilities = new Utilities(root);
-    mainPage = new MainPage(root);
+    page = await app.getPage()
+    const root = page.locator('body')
+    loginPage = new LoginPage(root)
+    vaultSelectPage = new VaultSelectPage(root)
+    sideMenuPage = new SideMenuPage(root)
+    utilities = new Utilities(root)
+    mainPage = new MainPage(root)
 
-    await loginPage.loginToApplication(testData.credentials.validPassword);
-    await vaultSelectPage.selectVaultbyName(testData.vault.name);
+    await loginPage.loginToApplication(testData.credentials.validPassword)
+    await vaultSelectPage.selectVaultbyName(testData.vault.name)
 
     await sideMenuPage.selectSideBarCategory('note')
     await utilities.deleteAllElements()
     await mainPage.clickCreateNewElementButton('Create a note')
 
-    await page.waitForTimeout(testData.timeouts.action);
-  });
+    await page.waitForTimeout(testData.timeouts.action)
+  })
 
   test.beforeEach(async ({ app }) => {
     page = await app.getPage()
@@ -45,7 +53,6 @@ test.describe('Creating Note Item', () => {
     createOrEditPage = new CreateOrEditPage(root)
     utilities = new Utilities(root)
     detailsPage = new DetailsPage(root)
-
   })
 
   test.afterAll(async () => {
@@ -54,7 +61,7 @@ test.describe('Creating Note Item', () => {
   })
 
   test('Creating the "Note" item', async ({ page }) => {
-    qase.id(2248);
+    qase.id(2248)
     await createOrEditPage.fillCreateOrEditInput('title', 'Note Title')
     await createOrEditPage.fillCreateOrEditTextArea('note', 'Test Note Text')
     await createOrEditPage.clickOnCreateOrEditButton('save')
@@ -62,14 +69,14 @@ test.describe('Creating Note Item', () => {
   })
 
   test('Viewing created item. Verify item details', async ({ page }) => {
-    qase.id(2249);
+    qase.id(2249)
     await mainPage.openElementDetails()
-    await detailsPage.verifyTitle('Note Title');
+    await detailsPage.verifyTitle('Note Title')
     await detailsPage.verifyNoteText('Test Note Text')
   })
 
   test('Dropdown moves to selected item edit screen', async ({ page }) => {
-    qase.id(2250);
+    qase.id(2250)
     await mainPage.verifyElementTitle('Note Title')
     await sideMenuPage.clickSidebarAddButton()
     await detailsPage.fillCreateNewFolderTitleInput('Test Folder')
@@ -83,7 +90,7 @@ test.describe('Creating Note Item', () => {
   })
 
   test('Item moved to folder (and cleanup)', async ({ page }) => {
-    qase.id(2251);
+    qase.id(2251)
     await sideMenuPage.verifySidebarFolderName('Test Folder')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -95,7 +102,7 @@ test.describe('Creating Note Item', () => {
   })
 
   test('Add via Favorite icon', async ({ page }) => {
-    qase.id(2252);
+    qase.id(2252)
     await sideMenuPage.selectSideBarCategory('all')
     await mainPage.verifyElementTitle('Note Title')
     await mainPage.openElementDetails()
@@ -106,7 +113,7 @@ test.describe('Creating Note Item', () => {
   })
 
   test('Remove via Favorite icon', async ({ page }) => {
-    qase.id(2253);
+    qase.id(2253)
     await mainPage.openElementDetails()
     await detailsPage.clickFavoriteButton()
     await expect(detailsPage.getFavoriteAvatar('NT')).not.toBeVisible()
@@ -114,7 +121,7 @@ test.describe('Creating Note Item', () => {
   })
 
   test('Add via More options', async ({ page }) => {
-    qase.id(2254);
+    qase.id(2254)
     await mainPage.openElementDetails()
     await detailsPage.openItemBarThreeDotsDropdownMenu()
     await detailsPage.clickMarkAsFavoriteButton()
@@ -123,7 +130,7 @@ test.describe('Creating Note Item', () => {
   })
 
   test('Remove via More options', async ({ page }) => {
-    qase.id(2255);
+    qase.id(2255)
     await mainPage.openElementDetails()
     await detailsPage.openItemBarThreeDotsDropdownMenu()
     await detailsPage.clickRemoveFromFavoritesButton()
@@ -132,7 +139,7 @@ test.describe('Creating Note Item', () => {
   })
 
   // test('Add Custom Note', async ({ page }) => {
-    // qase.id(2256);
+  // qase.id(2256);
   //   await mainPage.verifyElementTitle('Note Title')
   //   await mainPage.openElementDetails()
   //   await detailsPage.editElement()
@@ -146,7 +153,7 @@ test.describe('Creating Note Item', () => {
   // })
 
   // test('Delete Note field', async ({ page }) => {
-    // qase.id(2257);
+  // qase.id(2257);
   //   await mainPage.verifyElementTitle('Note Title')
   //   await mainPage.openElementDetails()
   //   await detailsPage.editElement()
@@ -160,17 +167,16 @@ test.describe('Creating Note Item', () => {
   // })
 
   test('Close via Cross icon', async ({ page }) => {
-    qase.id(2258);
+    qase.id(2258)
     await mainPage.verifyElementTitle('Note Title')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
     await detailsPage.clickElementItemCloseButton()
     await mainPage.verifyElementTitle('Note Title')
-
   })
 
   test('View uploaded file in Edit mode', async ({ page }) => {
-    qase.id(2259);
+    qase.id(2259)
     await mainPage.verifyElementTitle('Note Title')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -186,7 +192,7 @@ test.describe('Creating Note Item', () => {
   })
 
   // test('View uploaded file in View mode (and cleanup)', async ({ page }) => {
-    // qase.id(2260);
+  // qase.id(2260);
   //   await mainPage.openElementDetails()
   //   await detailsPage.verifyUploadedFileIsVisible()
   //   await detailsPage.clickOnUploadedFile()
@@ -200,7 +206,7 @@ test.describe('Creating Note Item', () => {
   // })
 
   test('Empty fields not displayed in view mode', async ({ page }) => {
-    qase.id(2261);
+    qase.id(2261)
     await mainPage.verifyElementTitle('Note Title')
     await mainPage.openElementDetails()
     await detailsPage.editElement()
@@ -208,9 +214,7 @@ test.describe('Creating Note Item', () => {
     await createOrEditPage.clickOnCreateOrEditButton('save')
     await mainPage.openElementDetails()
     await detailsPage.verifyItemDetailsValueIsNotVisible('Add comment')
-    
+
     await mainPage.clickDetailsCloseButton()
-
   })
-
 })

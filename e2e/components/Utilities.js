@@ -45,28 +45,34 @@ class Utilities {
   // ==== ACTIONS ====
 
   async deleteAllElements() {
-    const firstElement = this.root.getByTestId('recordList-record-container').first();
-    const emptyText = this.collectionEmptyText;
+    const firstElement = this.root
+      .getByTestId('recordList-record-container')
+      .first()
+    const emptyText = this.collectionEmptyText
 
     while (true) {
-      const emptyVisible = await emptyText.isVisible().catch(() => false);
-      if (emptyVisible) break;
+      const emptyVisible = await emptyText.isVisible().catch(() => false)
+      if (emptyVisible) break
 
-      const elementVisible = await firstElement.isVisible({ timeout: 3000 }).catch(() => false);
-      if (!elementVisible) break;
+      const elementVisible = await firstElement
+        .isVisible({ timeout: 3000 })
+        .catch(() => false)
+      if (!elementVisible) break
 
-      await firstElement.click();
+      await firstElement.click()
 
-      await expect(this.detailsHeader).toBeVisible({ timeout: 5000 });
+      await expect(this.detailsHeader).toBeVisible({ timeout: 5000 })
 
-      await this.itemBarThreeDots.click();
+      await this.itemBarThreeDots.click()
 
-      await expect(this.deleteElementButton).toBeVisible({ timeout: 5000 });
-      await this.deleteElementButton.click();
+      await expect(this.deleteElementButton).toBeVisible({ timeout: 5000 })
+      await this.deleteElementButton.click()
 
-      await this.root.getByText('Yes').click();
+      await this.root.getByText('Yes').click()
 
-      await expect(emptyText).toBeVisible({ timeout: 5000 }).catch(() => { });
+      await expect(emptyText)
+        .toBeVisible({ timeout: 5000 })
+        .catch(() => {})
     }
   }
 

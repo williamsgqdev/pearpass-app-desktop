@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/app.runner.js';
+import { test, expect } from '../fixtures/app.runner.js'
 
 class SideMenuPage {
   constructor(root) {
@@ -14,11 +14,11 @@ class SideMenuPage {
   getSideMenuFolder(folderName) {
     return this.root
       .getByTestId('sidebar-folder')
-      .getByText(folderName, { exact: true });
+      .getByText(folderName, { exact: true })
   }
 
   async verifySideMenuFolderName(folderName) {
-    await expect(this.getSideMenuFolder(folderName)).toBeVisible();
+    await expect(this.getSideMenuFolder(folderName)).toBeVisible()
   }
 
   getSidebarCategory(categoryname) {
@@ -30,7 +30,7 @@ class SideMenuPage {
   }
 
   get confirmButton() {
-    return this.root.getByTestId('button-primary');
+    return this.root.getByTestId('button-primary')
   }
 
   get favoritesFolder() {
@@ -90,27 +90,28 @@ class SideMenuPage {
   }
 
   getFavoriteFileName() {
-    return this.root.locator('input[data-testid="sidebar-folder-favorites"][placeholder="Insert folder name"]');
+    return this.root.locator(
+      'input[data-testid="sidebar-folder-favorites"][placeholder="Insert folder name"]'
+    )
   }
 
   // ==== VERIFICATIONS ====
 
   async verifySidebarFolderName(foldername) {
-    const folder = this.getSideMenuFolder(foldername);
+    const folder = this.getSideMenuFolder(foldername)
     await expect(folder).toBeVisible()
   }
 
   async verifyFavoriteFolderIsNotVisible(foldername) {
-    const folder = this.getSideMenuFolder(foldername);
-    await expect(folder).not.toBeVisible();
+    const folder = this.getSideMenuFolder(foldername)
+    await expect(folder).not.toBeVisible()
   }
 
   async verifyFavoriteFileIsVisible(foldername, filename) {
-    const folder = this.getSideMenuFolder(foldername);
-    await expect(folder).toBeVisible();
-    await expect(folder).toContainText(filename);
+    const folder = this.getSideMenuFolder(foldername)
+    await expect(folder).toBeVisible()
+    await expect(folder).toContainText(filename)
   }
-
 }
 
 module.exports = { SideMenuPage }

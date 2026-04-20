@@ -1,18 +1,17 @@
-import { spawn } from 'node:child_process';
-import { createRequire } from 'node:module';
-import os from 'node:os';
-import path from 'node:path';
+import { spawn } from 'node:child_process'
+import { createRequire } from 'node:module'
+import os from 'node:os'
+import path from 'node:path'
 
-import { test as base, expect, chromium } from '@playwright/test';
+import { test as base, expect, chromium } from '@playwright/test'
 
-const isWindows = os.platform() === 'win32';
+const isWindows = os.platform() === 'win32'
 
 /** Real Electron binary path (avoids Windows spawn EINVAL from .cmd without shell). */
 function resolveElectronBinary(appDir) {
   const require = createRequire(path.join(appDir, 'package.json'))
   return require('electron')
 }
-
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -22,7 +21,7 @@ async function connectWithRetries(wsEndpoint, maxRetries) {
   // Windows needs more retries with shorter delays
   // Mac works better with exponential backoff
   const retries = maxRetries ?? (isWindows ? 15 : 10)
-  
+
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       // Sleep AFTER first attempt fails, not before
@@ -30,8 +29,10 @@ async function connectWithRetries(wsEndpoint, maxRetries) {
         const delay = isWindows ? 1000 : 2 ** attempt * 1000
         await sleep(delay)
       }
-      
-      console.log(`[CDP] Attempting connection to ${wsEndpoint} (attempt ${attempt + 1}/${retries + 1})`)
+
+      console.log(
+        `[CDP] Attempting connection to ${wsEndpoint} (attempt ${attempt + 1}/${retries + 1})`
+      )
       return await chromium.connectOverCDP(wsEndpoint)
     } catch (err) {
       console.log(`[CDP] Connection failed: ${err.message}`)
@@ -47,12 +48,15 @@ async function waitForPage(browser, maxRetries = 60) {
       const pages = context.pages()
       // Debug: log all page URLs
       if (attempt % 5 === 0) {
-        console.log(`[Attempt ${attempt}] Available pages:`, pages.map((p) => p.url()))
+        console.log(
+          `[Attempt ${attempt}] Available pages:`,
+          pages.map((p) => p.url())
+        )
       }
-      
+
       // Electron loads index.html via file:// on all platforms
       const page = pages.find((p) => p.url().includes('index.html'))
-      
+
       if (page) {
         console.log('[Found] App page:', page.url())
         return page
@@ -60,7 +64,7 @@ async function waitForPage(browser, maxRetries = 60) {
     }
     await sleep(1000)
   }
-  
+
   // Last resort: return any page that's not blank
   const contexts = browser.contexts()
   for (const context of contexts) {
@@ -70,14 +74,16 @@ async function waitForPage(browser, maxRetries = 60) {
       return page
     }
   }
-  
+
   return null
 }
 
 async function launchApp(appDir) {
   const port = Math.floor(Math.random() * (65535 - 10000 + 1)) + 10000
 
-  console.log(`[Launch] Starting app on port ${port}, platform: ${os.platform()}`)
+  console.log(
+    `[Launch] Starting app on port ${port}, platform: ${os.platform()}`
+  )
 
   const electronBin = resolveElectronBinary(appDir)
 
@@ -113,17 +119,19 @@ async function launchApp(appDir) {
   await sleep(initialDelay)
 
   const browser = await connectWithRetries(`http://localhost:${port}`)
-  
+
   // Listen for new pages on all contexts
   for (const context of browser.contexts()) {
     context.on('page', (p) => console.log('[Event] New page created:', p.url()))
   }
-  
+
   const page = await waitForPage(browser)
 
   if (!page) {
     // Final debug output
-    const allPages = browser.contexts().flatMap((c) => c.pages().map((p) => p.url()))
+    const allPages = browser
+      .contexts()
+      .flatMap((c) => c.pages().map((p) => p.url()))
     console.error('[Debug] All available page URLs:', allPages)
     throw new Error('Could not find app page')
   }
@@ -131,7 +139,7 @@ async function launchApp(appDir) {
   // Wait for page to be fully loaded on all platforms
   console.log('[Launch] Waiting for page to be ready...')
   await page.waitForLoadState('domcontentloaded')
-  
+
   // Windows needs additional settling time
   if (isWindows) {
     await sleep(2000)
@@ -161,35 +169,40 @@ async function launchApp(appDir) {
   return app
 }
 
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process'
 
 export async function teardown({ proc, browser, isWindows }) {
   try {
     if (proc?.pid) {
-      console.log(`[Teardown] Killing Electron process PID=${proc.pid} ...`);
+      console.log(`[Teardown] Killing Electron process PID=${proc.pid} ...`)
       if (isWindows) {
         // Windows: koristi taskkill
-        spawnSync('taskkill', ['/PID', String(proc.pid), '/T', '/F'], { stdio: 'inherit' });
+        spawnSync('taskkill', ['/PID', String(proc.pid), '/T', '/F'], {
+          stdio: 'inherit'
+        })
       } else {
         // Mac/Linux: ubij proces grupu (-pid)
-        process.kill(-proc.pid, 'SIGKILL');
+        process.kill(-proc.pid, 'SIGKILL')
       }
     }
   } catch (e) {
-    console.warn('Electron process already terminated or could not be killed', e.message);
+    console.warn(
+      'Electron process already terminated or could not be killed',
+      e.message
+    )
   }
 
   // Mali delay da OS oslobodi port i prozore
-  await new Promise(r => setTimeout(r, 500));
+  await new Promise((r) => setTimeout(r, 500))
 
   // Close CDP browser connection
   try {
     if (browser) {
-      console.log('[Teardown] Closing CDP browser connection...');
-      await browser.close();
+      console.log('[Teardown] Closing CDP browser connection...')
+      await browser.close()
     }
   } catch (e) {
-    console.warn('Browser already closed', e.message);
+    console.warn('Browser already closed', e.message)
   }
 }
 

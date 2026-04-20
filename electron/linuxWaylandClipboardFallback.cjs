@@ -49,11 +49,17 @@ function prepareBundledBinary(archName, tempName) {
 }
 
 function prepareWlPasteBinary() {
-  return prepareBundledBinary(getWlPasteBinaryArchitectureName(), TEMP_WL_PASTE_NAME)
+  return prepareBundledBinary(
+    getWlPasteBinaryArchitectureName(),
+    TEMP_WL_PASTE_NAME
+  )
 }
 
 function prepareWlCopyBinary() {
-  return prepareBundledBinary(getWlCopyBinaryArchitectureName(), TEMP_WL_COPY_NAME)
+  return prepareBundledBinary(
+    getWlCopyBinaryArchitectureName(),
+    TEMP_WL_COPY_NAME
+  )
 }
 
 function readClipboardWithFallback() {

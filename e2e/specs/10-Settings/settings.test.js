@@ -1,4 +1,5 @@
-import { test, expect } from '../../fixtures/app.runner.js';
+import { qase } from 'playwright-qase-reporter'
+
 import {
   LoginPage,
   VaultSelectPage,
@@ -8,27 +9,34 @@ import {
   Utilities,
   DetailsPage,
   SettingsPage
-} from '../../components/index.js';
-import testData from '../../fixtures/test-data.js';
-import { qase } from 'playwright-qase-reporter';
-
+} from '../../components/index.js'
+import { test, expect } from '../../fixtures/app.runner.js'
+import testData from '../../fixtures/test-data.js'
 
 test.describe('Settings test', () => {
   test.describe.configure({ mode: 'serial' })
 
-  let loginPage, vaultSelectPage, createOrEditPage, sideMenuPage, mainPage, utilities, detailsPage, page, settingsPage
+  let loginPage,
+    vaultSelectPage,
+    createOrEditPage,
+    sideMenuPage,
+    mainPage,
+    utilities,
+    detailsPage,
+    page,
+    settingsPage
 
   test.beforeAll(async ({ app }) => {
-    page = await app.getPage();
-    const root = page.locator('body');
-    loginPage = new LoginPage(root);
-    vaultSelectPage = new VaultSelectPage(root);
-    sideMenuPage = new SideMenuPage(root);
-    utilities = new Utilities(root);
-    mainPage = new MainPage(root);
+    page = await app.getPage()
+    const root = page.locator('body')
+    loginPage = new LoginPage(root)
+    vaultSelectPage = new VaultSelectPage(root)
+    sideMenuPage = new SideMenuPage(root)
+    utilities = new Utilities(root)
+    mainPage = new MainPage(root)
 
-    await loginPage.loginToApplication(testData.credentials.validPassword);
-    await vaultSelectPage.selectVaultbyName(testData.vault.name);
+    await loginPage.loginToApplication(testData.credentials.validPassword)
+    await vaultSelectPage.selectVaultbyName(testData.vault.name)
   })
 
   test.beforeEach(async ({ app }) => {
@@ -51,7 +59,7 @@ test.describe('Settings test', () => {
   })
 
   test('Verify Security Settings', async ({ page }) => {
-    qase.id(2605);
+    qase.id(2605)
     await sideMenuPage.clickSidebarSettingsButton()
     await settingsPage.clickSettingsNavigation('security')
     await settingsPage.verifySettingsCardIsVisible('master-password')
@@ -68,10 +76,24 @@ test.describe('Settings test', () => {
     await settingsPage.verifySwitchIsOnOrOff('reminders-switch', 'on', 'on')
 
     // Copy-to-clipboard Switch
-    await settingsPage.clickPearPassFunctionButton('copy-to-clipboard-switch', 'on')
-    await settingsPage.verifySwitchIsOnOrOff('copy-to-clipboard-switch', 'off', 'off')
-    await settingsPage.clickPearPassFunctionButton('copy-to-clipboard-switch', 'off')
-    await settingsPage.verifySwitchIsOnOrOff('copy-to-clipboard-switch', 'on', 'on')
+    await settingsPage.clickPearPassFunctionButton(
+      'copy-to-clipboard-switch',
+      'on'
+    )
+    await settingsPage.verifySwitchIsOnOrOff(
+      'copy-to-clipboard-switch',
+      'off',
+      'off'
+    )
+    await settingsPage.clickPearPassFunctionButton(
+      'copy-to-clipboard-switch',
+      'off'
+    )
+    await settingsPage.verifySwitchIsOnOrOff(
+      'copy-to-clipboard-switch',
+      'on',
+      'on'
+    )
 
     // Auto-Logout Dropdown
     await settingsPage.clickPearPassFunctionDropdown('auto-logout-dropdown')
@@ -84,18 +106,17 @@ test.describe('Settings test', () => {
     await settingsPage.getPearPassFunctionDropdownOption('hours_1')
     await settingsPage.getPearPassFunctionDropdownOption('hours_4')
     await settingsPage.getPearPassFunctionDropdownOption('never')
-
   })
 
   test('Verify Syncing Settings', async ({ page }) => {
-    qase.id(2606);
+    qase.id(2606)
     await settingsPage.clickSettingsNavigation('syncing')
     await settingsPage.verifySettingsCardIsVisible('blind-peering')
     await settingsPage.verifySettingsCardIsVisible('browser-extension')
   })
 
   test('Verify Vault Settings', async ({ page }) => {
-    qase.id(2607);
+    qase.id(2607)
     await settingsPage.clickSettingsNavigation('vault')
 
     await settingsPage.verifySettingsCardIsVisible('your-vault')
@@ -105,19 +126,18 @@ test.describe('Settings test', () => {
   })
 
   test('Verify Appearance Settings', async ({ page }) => {
-    qase.id(2608);
+    qase.id(2608)
     await settingsPage.clickSettingsNavigation('appearance')
     await settingsPage.verifySettingsCardIsVisible('language')
   })
 
   test('Verify About Settings', async ({ page }) => {
-    qase.id(2609);
+    qase.id(2609)
     await settingsPage.clickSettingsNavigation('about')
 
-      await settingsPage.verifySettingsCardIsVisible('report')
-      await settingsPage.verifySettingsCardIsVisible('pearpass-version')
+    await settingsPage.verifySettingsCardIsVisible('report')
+    await settingsPage.verifySettingsCardIsVisible('pearpass-version')
 
-      await settingsPage.clickBackSettingsButton()
+    await settingsPage.clickBackSettingsButton()
   })
-
 })

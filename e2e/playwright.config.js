@@ -1,7 +1,7 @@
-import { defineConfig } from '@playwright/test';
-import dotenv from 'dotenv';
+import { defineConfig } from '@playwright/test'
+import dotenv from 'dotenv'
 
-dotenv.config();
+dotenv.config()
 
 export default defineConfig({
   timeout: 5 * 60 * 1000,
@@ -31,29 +31,29 @@ export default defineConfig({
         debug: false,
         testops: {
           api: {
-            token: process.env.API_TOKEN,
+            token: process.env.API_TOKEN
           },
           project: 'PAS',
           uploadAttachments: true,
           run: {
             title: 'Automated Playwright Run',
             description: 'Nightly regression tests',
-            complete: true,
+            complete: true
           },
           batch: {
-            size: 100,
-          },
+            size: 100
+          }
         },
         framework: {
           browser: {
             addAsParameter: true,
-            parameterName: 'Browser',
+            parameterName: 'Browser'
           },
-          markAsFlaky: true,
-        },
-      },
-    ],
+          markAsFlaky: true
+        }
+      }
+    ]
   ],
 
   outputDir: 'test-artifacts/results'
-});
+})

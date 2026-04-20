@@ -11,11 +11,11 @@ class CreateOrEditPage {
     return this.root.getByTestId(`passwordcheck-strength-${strenght_type}`)
   }
 
-  async verifyPasswordStrenght(strenght, type, text ) {
-    const element = this.root.getByTestId(`passwordcheck-strength-${strenght}`);
-    await expect(element).toBeVisible();
-    await expect(element).toHaveAttribute('type', type);
-    await expect(element).toHaveText(text);
+  async verifyPasswordStrenght(strenght, type, text) {
+    const element = this.root.getByTestId(`passwordcheck-strength-${strenght}`)
+    await expect(element).toBeVisible()
+    await expect(element).toHaveAttribute('type', type)
+    await expect(element).toHaveText(text)
   }
 
   get charactersliderContainer() {
@@ -27,7 +27,9 @@ class CreateOrEditPage {
   }
 
   getCharsliderByPositionNumber(position_number) {
-    return this.root.getByTestId(`passwordgenerator-characterSlider-${position_number}`)
+    return this.root.getByTestId(
+      `passwordgenerator-characterSlider-${position_number}`
+    )
   }
 
   async verifyCharsliderByPositionNumber(position) {
@@ -38,9 +40,11 @@ class CreateOrEditPage {
   }
 
   get switchwithlabelContainer() {
-    return this.root.getByTestId('ruleselector-switchwithlabel-specialCharacters')
+    return this.root.getByTestId(
+      'ruleselector-switchwithlabel-specialCharacters'
+    )
   }
-  
+
   getswitchByPositionState(switch_state) {
     return this.root.getByTestId(`switchwithlabel-switch-${switch_state}`)
   }
@@ -60,10 +64,8 @@ class CreateOrEditPage {
     await switch_state.click()
   }
 
-
   // ruleselector-switchwithlabel-specialCharacters
   // switchwithlabel-switch-on
-
 
   get passphraseRadioButtonContainer() {
     return this.root.getByTestId('radioselect-container')
@@ -80,14 +82,16 @@ class CreateOrEditPage {
   async verifyRadioButtonPasswordState(password_state) {
     const radiobuttons_container = this.passphraseRadioButtonContainer
     await expect(radiobuttons_container).toBeVisible()
-    const password_radiobutton_state = this.getPasswordRadioButtonState(password_state)
+    const password_radiobutton_state =
+      this.getPasswordRadioButtonState(password_state)
     await expect(password_radiobutton_state).toBeVisible()
   }
 
   async verifyRadioButtonPassphraseState(passphrase_state) {
     const radiobuttons_container = this.passphraseRadioButtonContainer
     await expect(radiobuttons_container).toBeVisible()
-    const passphrase_radiobutton_state = this.getPassphraseRadioButtonState(passphrase_state)
+    const passphrase_radiobutton_state =
+      this.getPassphraseRadioButtonState(passphrase_state)
     await expect(passphrase_radiobutton_state).toBeVisible()
   }
 
@@ -167,7 +171,7 @@ class CreateOrEditPage {
   get deleteFileButton() {
     return this.root
       .getByTestId('createoredit-attachment')
-      .getByRole('button', { name: "Delete File" });
+      .getByRole('button', { name: 'Delete File' })
   }
 
   async clickOnDeleteFileButton() {
@@ -391,8 +395,6 @@ class CreateOrEditPage {
   }
 
   // Create Login Item
-  
-
 }
 
 module.exports = { CreateOrEditPage }

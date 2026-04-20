@@ -1,4 +1,5 @@
-import { test, expect } from '../../fixtures/app.runner.js';
+import { qase } from 'playwright-qase-reporter'
+
 import {
   LoginPage,
   VaultSelectPage,
@@ -7,26 +8,33 @@ import {
   CreateOrEditPage,
   Utilities,
   DetailsPage
-} from '../../components/index.js';
-import testData from '../../fixtures/test-data.js';
-import { qase } from 'playwright-qase-reporter';
+} from '../../components/index.js'
+import { test, expect } from '../../fixtures/app.runner.js'
+import testData from '../../fixtures/test-data.js'
 
 test.describe('Sorting test', () => {
   test.describe.configure({ mode: 'serial' })
 
-  let loginPage, vaultSelectPage, createOrEditPage, sideMenuPage, mainPage, utilities, detailsPage, page
+  let loginPage,
+    vaultSelectPage,
+    createOrEditPage,
+    sideMenuPage,
+    mainPage,
+    utilities,
+    detailsPage,
+    page
 
   test.beforeAll(async ({ app }) => {
-    page = await app.getPage();
-    const root = page.locator('body');
-    loginPage = new LoginPage(root);
-    vaultSelectPage = new VaultSelectPage(root);
-    sideMenuPage = new SideMenuPage(root);
-    utilities = new Utilities(root);
-    mainPage = new MainPage(root);
+    page = await app.getPage()
+    const root = page.locator('body')
+    loginPage = new LoginPage(root)
+    vaultSelectPage = new VaultSelectPage(root)
+    sideMenuPage = new SideMenuPage(root)
+    utilities = new Utilities(root)
+    mainPage = new MainPage(root)
 
-    await loginPage.loginToApplication(testData.credentials.validPassword);
-    await vaultSelectPage.selectVaultbyName(testData.vault.name);
+    await loginPage.loginToApplication(testData.credentials.validPassword)
+    await vaultSelectPage.selectVaultbyName(testData.vault.name)
 
     await sideMenuPage.selectSideBarCategory('all')
     await utilities.deleteAllElements()
@@ -43,7 +51,6 @@ test.describe('Sorting test', () => {
     createOrEditPage = new CreateOrEditPage(root)
     utilities = new Utilities(root)
     detailsPage = new DetailsPage(root)
-
   })
 
   test.afterAll(async () => {
@@ -51,8 +58,10 @@ test.describe('Sorting test', () => {
     await sideMenuPage.clickSidebarExitButton()
   })
 
-  test('Verify that items are sorted by most recently modified when "Recent" is selected', async ({ page }) => {
-    qase.id(2592);
+  test('Verify that items are sorted by most recently modified when "Recent" is selected', async ({
+    page
+  }) => {
+    qase.id(2592)
     await sideMenuPage.selectSideBarCategory('login')
     await mainPage.clickCreateNewElementButton('Create a login')
     await createOrEditPage.fillCreateOrEditInput('title', 'AAA')
@@ -76,11 +85,12 @@ test.describe('Sorting test', () => {
     await mainPage.verifyElementByPosition('0', 'CCC')
     await mainPage.verifyElementByPosition('1', 'BBB')
     await mainPage.verifyElementByPosition('2', 'AAA')
-
   })
 
-  test('Verify that items are sorted from newest to oldest when "Newest to oldest" is selected', async ({ page }) => {
-    qase.id(2593);
+  test('Verify that items are sorted from newest to oldest when "Newest to oldest" is selected', async ({
+    page
+  }) => {
+    qase.id(2593)
     await mainPage.clickSortButton()
     await mainPage.selectSortOption('newToOld')
 
@@ -89,8 +99,10 @@ test.describe('Sorting test', () => {
     await mainPage.verifyElementByPosition('2', 'AAA')
   })
 
-  test('Verify that items are sorted from oldest to newest when "Oldest to newest" is selected', async ({ page }) => {
-    qase.id(2594);
+  test('Verify that items are sorted from oldest to newest when "Oldest to newest" is selected', async ({
+    page
+  }) => {
+    qase.id(2594)
     await mainPage.clickSortButton()
     await mainPage.selectSortOption('oldToNew')
 
@@ -100,8 +112,10 @@ test.describe('Sorting test', () => {
     await page.waitForTimeout(testData.timeouts.action)
   })
 
-  test('Verify that favorite items are displayed first on the Home screen', async ({ page }) => {
-    qase.id(2595);
+  test('Verify that favorite items are displayed first on the Home screen', async ({
+    page
+  }) => {
+    qase.id(2595)
     await sideMenuPage.selectSideBarCategory('login')
     await mainPage.openElementDetails()
     await detailsPage.clickFavoriteButton()
@@ -120,8 +134,10 @@ test.describe('Sorting test', () => {
     await mainPage.verifyElementByPosition('2', 'CCC')
   })
 
-  test('Verify that only favorite items are displayed when "Favorite" is selected', async ({ page }) => {
-    qase.id(2596);
+  test('Verify that only favorite items are displayed when "Favorite" is selected', async ({
+    page
+  }) => {
+    qase.id(2596)
     await sideMenuPage.openSideBarFolder('Favorites')
     await page.waitForTimeout(testData.timeouts.action)
     await mainPage.verifyElementByPosition('0', 'AAA')
@@ -129,5 +145,4 @@ test.describe('Sorting test', () => {
 
     await sideMenuPage.selectSideBarCategory('all')
   })
-
 })

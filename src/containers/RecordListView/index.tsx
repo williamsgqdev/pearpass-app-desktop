@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 
 import { useLingui } from '@lingui/react'
-// TS typings for this package miss the named hook export used across the app.
-// @ts-expect-error - runtime export exists, declaration file is incomplete.
 import { useRecords } from '@tetherto/pearpass-lib-vault'
 
 import {
