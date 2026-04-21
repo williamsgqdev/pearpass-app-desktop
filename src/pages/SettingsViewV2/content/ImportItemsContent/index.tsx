@@ -44,7 +44,7 @@ type ImportState = 'default' | 'upload' | 'inputPassword'
 
 type ImportOption = {
   title: string
-  type: string
+  type: ImportOptionType
   description: string
   testId?: string
   accepts: string[]
@@ -59,6 +59,18 @@ type FileInfo = {
   filename: string
   size: number
   isEncrypted: boolean
+}
+
+enum ImportOptionType {
+  OnePassword = '1password',
+  Bitwarden = 'bitwarden',
+  KeePass = 'keepass',
+  KeePassKDBX = 'keepass-kdbx',
+  LastPass = 'lastpass',
+  NordPass = 'nordpass',
+  ProtonPass = 'protonpass',
+  Unencrypted = 'unencrypted',
+  Encrypted = 'encrypted'
 }
 
 const isAllowedType = (fileType: string, accepts: string[]) =>
@@ -79,7 +91,7 @@ export const ImportItemsContent = () => {
   const importOptions: ImportOption[] = [
     {
       title: '1Password',
-      type: '1password',
+      type: ImportOptionType.OnePassword,
       description: t(
         'To import data from 1Password, open the app, go to File > Export, and export your data as a CSV file. Once the export is complete, upload the file here.'
       ),
@@ -90,7 +102,7 @@ export const ImportItemsContent = () => {
     },
     {
       title: 'Bitwarden',
-      type: 'bitwarden',
+      type: ImportOptionType.Bitwarden,
       description: t(
         'To import data from Bitwarden, go to Tools > Export Vault in the web app, choose JSON or CSV format, and upload the exported file here.'
       ),
@@ -101,7 +113,7 @@ export const ImportItemsContent = () => {
     },
     {
       title: 'KeePass',
-      type: 'keepass',
+      type: ImportOptionType.KeePass,
       description: t(
         'To import data from KeePass, open your database and export it via File > Export. KDBX files require your database password. Upload the exported file here.'
       ),
@@ -112,7 +124,7 @@ export const ImportItemsContent = () => {
     },
     {
       title: 'KeePassXC',
-      type: 'keepass',
+      type: ImportOptionType.KeePass,
       description: t(
         'To import data from KeePassXC, open your database and go to Database > Export to CSV or XML. Once done, upload the exported file here.'
       ),
@@ -124,7 +136,7 @@ export const ImportItemsContent = () => {
     },
     {
       title: 'LastPass',
-      type: 'lastpass',
+      type: ImportOptionType.LastPass,
       description: t(
         'To import data from LastPass, go to Advanced Options > Export in your LastPass vault. Export as CSV and upload the file here.'
       ),
@@ -136,7 +148,7 @@ export const ImportItemsContent = () => {
     },
     {
       title: 'NordPass',
-      type: 'nordpass',
+      type: ImportOptionType.NordPass,
       description: t(
         'To import data from NordPass, open the app, go to Settings > Import & Export, and export your data as CSV. Upload the exported file here.'
       ),
@@ -148,7 +160,7 @@ export const ImportItemsContent = () => {
     },
     {
       title: 'Proton Pass',
-      type: 'protonpass',
+      type: ImportOptionType.ProtonPass,
       description: t(
         'To import data from Proton Pass, open the app, go to Settings, navigate to the Export tab, and choose your preferred export format. Once the export is complete, upload the file here.'
       ),
@@ -159,7 +171,7 @@ export const ImportItemsContent = () => {
     },
     {
       title: 'Encrypted file',
-      type: 'encrypted',
+      type: ImportOptionType.Encrypted,
       description: t(
         'Upload a PearPass-encrypted JSON export file. You will need the password used to encrypt the file.'
       ),
@@ -170,7 +182,7 @@ export const ImportItemsContent = () => {
     },
     {
       title: 'Unencrypted file',
-      type: 'unencrypted',
+      type: ImportOptionType.Unencrypted,
       description: t(
         'Upload an unencrypted PearPass export file in JSON or CSV format.'
       ),
@@ -238,7 +250,7 @@ export const ImportItemsContent = () => {
     password,
     isEncrypted
   }: {
-    type: string
+    type: ImportOptionType
     fileContent: string | ArrayBuffer
     fileType: string
     password?: string | null
@@ -249,15 +261,15 @@ export const ImportItemsContent = () => {
     let resolvedType = type
 
     try {
-      if (resolvedType === 'keepass' && fileType === 'kdbx') {
+      if (resolvedType === ImportOptionType.KeePass && fileType === 'kdbx') {
         if (!password) {
           throw new Error('Password is required for encrypted files')
         }
         dataToProcess = await decryptKeePassKdbx(fileContent, password)
-        resolvedType = 'keepass-kdbx'
+        resolvedType = ImportOptionType.KeePassKDBX
       }
 
-      if (resolvedType === 'encrypted' && isEncrypted) {
+      if (resolvedType === ImportOptionType.Encrypted && isEncrypted) {
         if (!password) {
           throw new Error('Password is required for encrypted files')
         }
@@ -272,31 +284,31 @@ export const ImportItemsContent = () => {
 
     try {
       switch (resolvedType) {
-        case '1password':
+        case ImportOptionType.OnePassword:
           result = await parse1PasswordData(dataToProcess, fileType)
           break
-        case 'bitwarden':
+        case ImportOptionType.Bitwarden:
           result = await parseBitwardenData(dataToProcess, fileType)
           break
-        case 'lastpass':
+        case ImportOptionType.LastPass:
           result = await parseLastPassData(dataToProcess, fileType)
           break
-        case 'keepass':
+        case ImportOptionType.KeePass:
           result = await parseKeePassData(dataToProcess, fileType)
           break
-        case 'keepass-kdbx':
+        case ImportOptionType.KeePassKDBX:
           result = await parseKeePassData(dataToProcess, 'kdbx')
           break
-        case 'nordpass':
+        case ImportOptionType.NordPass:
           result = await parseNordPassData(dataToProcess, fileType)
           break
-        case 'protonpass':
+        case ImportOptionType.ProtonPass:
           result = await parseProtonPassData(dataToProcess, fileType)
           break
-        case 'unencrypted':
+        case ImportOptionType.Unencrypted:
           result = await parsePearPassData(dataToProcess, fileType)
           break
-        case 'encrypted':
+        case ImportOptionType.Encrypted:
           result = await parsePearPassData(dataToProcess, 'json')
           break
         default:
@@ -356,7 +368,10 @@ export const ImportItemsContent = () => {
     }
 
     try {
-      if (selectedOption.type === 'keepass' && fileType === 'kdbx') {
+      if (
+        selectedOption.type === ImportOptionType.KeePass &&
+        fileType === 'kdbx'
+      ) {
         const fileContent = await readFileContent(file, { as: 'buffer' })
         setSelectedFileInfo({
           fileContent,
@@ -368,7 +383,7 @@ export const ImportItemsContent = () => {
         return
       }
 
-      if (selectedOption.type === 'encrypted') {
+      if (selectedOption.type === ImportOptionType.Encrypted) {
         const fileContent = await readFileContent(file)
         setSelectedFileInfo({
           fileContent,
