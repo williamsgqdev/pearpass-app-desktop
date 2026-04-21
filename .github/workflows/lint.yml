@@ -32,7 +32,6 @@ jobs:
       # Step : Run the Type Check (e.g., TypeScript)
       # If there are type errors, the pipeline stops here and fails.
       - name: Type Check
-        run: npx tsc --noEmit
         run: |
           npm run lingui:extract
           npm run lingui:compile
