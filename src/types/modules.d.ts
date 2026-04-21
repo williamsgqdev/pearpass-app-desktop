@@ -250,6 +250,11 @@ declare module '@tetherto/pearpass-lib-vault/src/utils/buffer' {
 }
 
 declare module '@tetherto/pearpass-lib-constants' {
+  export const BLIND_PEERS_LIMIT: number
+  export const BLIND_PEER_TYPE: {
+    DEFAULT: 'default'
+    PERSONAL: 'personal'
+  }
   export const PROTECTED_VAULT_ENABLED: boolean
   export const BE_AUTO_LOCK_ENABLED: boolean
   export const DEFAULT_AUTO_LOCK_TIMEOUT: number
