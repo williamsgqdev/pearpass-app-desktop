@@ -30,7 +30,7 @@ import {
 import { useRouter } from '../../context/RouterContext'
 import { useTranslation } from '../../hooks/useTranslation'
 import { createStyles } from './SettingsViewV2.styles'
-import { MasterPasswordContent } from './content/MasterPasswordContent'
+import { BlindPeersContent, MasterPasswordContent } from './content'
 
 export enum SettingsItemKey {
   AppPreferences = 'app-preferences',
@@ -64,6 +64,8 @@ const renderActiveContent = (
   switch (activeItemKey) {
     case SettingsItemKey.MasterPassword:
       return <MasterPasswordContent />
+    case SettingsItemKey.BlindPeering:
+      return <BlindPeersContent />
     default:
       return null
   }
