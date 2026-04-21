@@ -261,7 +261,11 @@ export const ImportItemsContent = () => {
     let resolvedType = type
 
     try {
-      if (resolvedType === ImportOptionType.KeePass && fileType === 'kdbx') {
+      if (
+        (resolvedType === ImportOptionType.KeePass ||
+          resolvedType === ImportOptionType.KeePassKDBX) &&
+        fileType === 'kdbx'
+      ) {
         if (!password) {
           throw new Error('Password is required for encrypted files')
         }
