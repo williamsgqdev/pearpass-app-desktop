@@ -15,7 +15,8 @@ import {
 // Mock dependencies
 jest.mock('@tetherto/pearpass-lib-constants', () => ({
   MANIFEST_NAME: 'com.pearpass.native_messaging',
-  CHROMIUM_EXTENSION_ID: 'mock-extension-id'
+  CHROMIUM_EXTENSION_ID: 'mock-extension-id',
+  FIREFOX_EXTENSION_ID: 'pearpass@example.com'
 }))
 jest.mock('os')
 jest.mock('fs/promises')
@@ -170,7 +171,7 @@ describe('getNativeMessagingLocations', () => {
   it('should return correct browser entries for macOS', () => {
     os.platform.mockReturnValue('darwin')
     const { browsers } = getNativeMessagingLocations()
-    expect(browsers).toHaveLength(4)
+    expect(browsers).toHaveLength(5)
     expect(browsers[0].name).toBe('Google Chrome')
     expect(browsers[0].manifestPath).toContain('Google/Chrome')
     expect(browsers[0].browserDir).toContain('Google/Chrome')
@@ -180,12 +181,14 @@ describe('getNativeMessagingLocations', () => {
     expect(browsers[2].manifestPath).toContain('Chromium')
     expect(browsers[3].name).toBe('Brave')
     expect(browsers[3].manifestPath).toContain('BraveSoftware/Brave-Browser')
+    expect(browsers[4].name).toBe('Firefox')
+    expect(browsers[4].manifestPath).toContain('Mozilla')
   })
 
   it('should return correct browser entries for Linux including snap', () => {
     os.platform.mockReturnValue('linux')
     const { browsers } = getNativeMessagingLocations()
-    expect(browsers).toHaveLength(5)
+    expect(browsers).toHaveLength(7)
     expect(browsers[0].name).toBe('Google Chrome')
     expect(browsers[0].manifestPath).toContain('google-chrome')
     expect(browsers[0].browserDir).toContain('google-chrome')
@@ -198,18 +201,23 @@ describe('getNativeMessagingLocations', () => {
     expect(browsers[3].browserDir).toContain('snap/chromium')
     expect(browsers[4].name).toBe('Brave')
     expect(browsers[4].manifestPath).toContain('BraveSoftware/Brave-Browser')
+    expect(browsers[5].name).toBe('Brave (Snap)')
+    expect(browsers[5].manifestPath).toContain('snap/brave/current')
+    expect(browsers[6].name).toBe('Firefox')
+    expect(browsers[6].manifestPath).toContain('.mozilla/native-messaging-hosts')
   })
 
   it('should return correct browser entries with registry keys for Windows', () => {
     os.platform.mockReturnValue('win32')
     const { browsers } = getNativeMessagingLocations()
-    expect(browsers).toHaveLength(4)
+    expect(browsers).toHaveLength(5)
     expect(browsers[0].browserDir).toBeNull()
     expect(browsers[0].manifestPath).toContain('PearPass/NativeMessaging')
     expect(browsers[0].registryKey).toContain('Google\\Chrome')
     expect(browsers[1].registryKey).toContain('Microsoft\\Edge')
     expect(browsers[2].registryKey).toContain('Chromium')
     expect(browsers[3].registryKey).toContain('BraveSoftware\\Brave-Browser')
+    expect(browsers[4].registryKey).toContain('Mozilla\\NativeMessagingHosts')
   })
 
   it('should throw error for unsupported platform', () => {
@@ -227,16 +235,16 @@ describe('cleanupNativeMessaging', () => {
     os.platform.mockReturnValue('linux')
     const result = await cleanupNativeMessaging()
     expect(result.success).toBe(true)
-    expect(result.message).toContain('Removed 5 manifest file')
-    expect(fs.unlink).toHaveBeenCalledTimes(5)
+    expect(result.message).toContain('Removed 7 manifest file')
+    expect(fs.unlink).toHaveBeenCalledTimes(7)
   })
 
   it('should remove manifest files on macOS', async () => {
     os.platform.mockReturnValue('darwin')
     const result = await cleanupNativeMessaging()
     expect(result.success).toBe(true)
-    expect(result.message).toContain('Removed 4 manifest file')
-    expect(fs.unlink).toHaveBeenCalledTimes(4)
+    expect(result.message).toContain('Removed 5 manifest file')
+    expect(fs.unlink).toHaveBeenCalledTimes(5)
   })
 
   it('should remove manifest files and registry keys on Windows', async () => {
@@ -246,9 +254,9 @@ describe('cleanupNativeMessaging', () => {
 
     const result = await cleanupNativeMessaging()
     expect(result.success).toBe(true)
-    expect(result.message).toContain('Removed 1 manifest file')
-    expect(fs.unlink).toHaveBeenCalledTimes(1)
-    expect(execMock).toHaveBeenCalledTimes(4)
+    expect(result.message).toContain('Removed 2 manifest file')
+    expect(fs.unlink).toHaveBeenCalledTimes(2)
+    expect(execMock).toHaveBeenCalledTimes(5)
   })
 
   it('should handle ENOENT errors gracefully', async () => {
@@ -428,7 +436,7 @@ describe('setupNativeMessaging', () => {
     expect(result.message).toMatch(
       /Native messaging host installed successfully/
     )
-    expect(execMock).toHaveBeenCalledTimes(4)
+    expect(execMock).toHaveBeenCalledTimes(5)
   })
 
   it('should continue on partial manifest write failures', async () => {
@@ -456,6 +464,8 @@ describe('setupNativeMessaging', () => {
       .mockRejectedValueOnce(new Error('ENOENT')) // microsoft-edge not found
       .mockRejectedValueOnce(new Error('ENOENT')) // chromium snap not found
       .mockRejectedValueOnce(new Error('ENOENT')) // brave not found
+      .mockRejectedValueOnce(new Error('ENOENT')) // brave snap not found
+      .mockRejectedValueOnce(new Error('ENOENT')) // firefox not found
 
     const result = await setupNativeMessaging({
       userDataPath: MOCK_USER_DATA_PATH,

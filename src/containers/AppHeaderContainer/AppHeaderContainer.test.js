@@ -16,9 +16,16 @@ jest.mock('../../utils/designVersion', () => ({
 }))
 
 const mockNavigate = jest.fn()
+const mockSetModal = jest.fn()
 
 jest.mock('../../context/RouterContext', () => ({
   useRouter: jest.fn()
+}))
+
+jest.mock('../../context/ModalContext', () => ({
+  useModal: () => ({
+    setModal: mockSetModal
+  })
 }))
 
 jest.mock('../../hooks/useRecordMenuItems', () => ({
@@ -72,6 +79,10 @@ jest.mock('../../components/AppHeaderV2', () => {
   }
 })
 
+jest.mock('../Modal/ImportItemOrVaultModalContentV2', () => ({
+  ImportItemOrVaultModalContentV2: () => null
+}))
+
 import { AppHeaderContainer } from './AppHeaderContainer'
 import { AppHeaderV2 } from '../../components/AppHeaderV2'
 import { AppHeaderContextProvider } from '../../context/AppHeaderContext'
@@ -89,6 +100,7 @@ describe('AppHeaderContainer', () => {
     mockAuthenticatorEnabled = false
     isV2.mockReturnValue(true)
     mockNavigate.mockReset()
+    mockSetModal.mockReset()
     useRouter.mockReturnValue({
       currentPage: 'vault',
       data: { folder: 'folder-1', recordType: 'login' },
@@ -147,14 +159,12 @@ describe('AppHeaderContainer', () => {
     expect(AppHeaderV2).toHaveBeenCalled()
   })
 
-  it('navigates to settings vault tab on import', () => {
+  it('opens import modal on import', () => {
     renderWithHeaderContext(<AppHeaderContainer />)
 
     fireEvent.click(screen.getByTestId('mock-import'))
 
-    expect(mockNavigate).toHaveBeenCalledWith('settings', {
-      initialTab: 'vault'
-    })
+    expect(mockSetModal).toHaveBeenCalledTimes(1)
   })
 
   it('wires search to header context state', () => {

@@ -54,6 +54,13 @@ jest.mock('../../../../context/ModalContext', () => ({
   })
 }))
 
+jest.mock(
+  '../../../../containers/Modal/AddDeviceModalContentV2/AddDeviceModalContentV2',
+  () => ({
+    AddDeviceModalContentV2: () => null
+  })
+)
+
 describe('SettingsDevicesSection', () => {
   const renderWithProviders = (component) =>
     render(<ThemeProvider>{component}</ThemeProvider>)
