@@ -204,6 +204,21 @@ declare module '@tetherto/pearpass-lib-vault' {
     onError?: (error: string) => void
   }): UseCreateFolderResult
 
+  export function decryptExportData(
+    encryptedData: unknown,
+    password: string
+  ): Promise<unknown>
+  export function useCreateRecord(options?: {
+    onCompleted?: (payload: unknown) => void
+    onError?: (error: Error) => void
+  }): {
+    createRecord: (
+      record: unknown,
+      onError?: (error: Error) => void
+    ) => Promise<unknown>
+    isLoading?: boolean
+  }
+
   export const useRecords: any
   export const useBlindMirrors: any
 }
@@ -266,7 +281,43 @@ declare module '@tetherto/pearpass-lib-constants' {
   export const DELETE_VAULT_ENABLED: boolean
   export const AUTHENTICATOR_ENABLED: boolean
   export const DESIGN_VERSION: number
+  export const MAX_IMPORT_RECORDS: number
   export const NATIVE_MESSAGING_BRIDGE_PEAR_LINK_PRODUCTION: string
   export const NATIVE_MESSAGING_BRIDGE_PEAR_LINK_STAGING: string
   export const UNSUPPORTED: boolean
+}
+
+declare module '@tetherto/pearpass-lib-data-import' {
+  export function decryptKeePassKdbx(
+    fileContent: string | ArrayBuffer,
+    password: string
+  ): Promise<unknown>
+  export function parse1PasswordData(
+    data: unknown,
+    fileType: string
+  ): Promise<unknown[]>
+  export function parseBitwardenData(
+    data: unknown,
+    fileType: string
+  ): Promise<unknown[]>
+  export function parseKeePassData(
+    data: unknown,
+    fileType: string
+  ): Promise<unknown[]>
+  export function parseLastPassData(
+    data: unknown,
+    fileType: string
+  ): Promise<unknown[]>
+  export function parseNordPassData(
+    data: unknown,
+    fileType: string
+  ): Promise<unknown[]>
+  export function parsePearPassData(
+    data: unknown,
+    fileType: string
+  ): Promise<unknown[]>
+  export function parseProtonPassData(
+    data: unknown,
+    fileType: string
+  ): Promise<unknown[]>
 }
