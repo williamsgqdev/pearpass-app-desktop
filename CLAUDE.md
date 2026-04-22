@@ -12,6 +12,6 @@ UI is built on `@tetherto/pearpass-lib-ui-kit`. All new UI — v2 redesigns of e
 - Style with `useTheme()` + `rawTokens` from the kit. No hardcoded hex colors or design-system spacing.
 - Import icons from `@tetherto/pearpass-lib-ui-kit/icons` (530 available). Do not add new SVGs under `src/`.
 
-**When the kit applies:** the active design is controlled by the `DESIGN_VERSION` flag from `@tetherto/pearpass-lib-constants`. Currently `DESIGN_VERSION === 2`, so kit components are the default for all new UI.
+**When the kit applies:** the active design is controlled by the `DESKTOP_DESIGN_VERSION` flag from `@tetherto/pearpass-lib-constants`. Currently `DESKTOP_DESIGN_VERSION === 2`, so kit components are the default for all new UI.
 
 **`V2` suffix is for coexistence only.** If a v1 file already exists for the component you're creating, add the `V2` suffix (e.g. `CardCreateMasterPasswordV2` alongside legacy `CardCreateMasterPassword`). If the component is net-new with no v1 sibling, use its natural name — **no suffix**.

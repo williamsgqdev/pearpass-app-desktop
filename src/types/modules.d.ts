@@ -259,6 +259,14 @@ declare module '@tetherto/pear-apps-utils-validator' {
   export const Validator: any
 }
 
+declare module '@tetherto/pear-apps-utils-date' {
+  export function formatDate(
+    date: string | Date,
+    format: string,
+    separator: string
+  ): string
+}
+
 declare module '@tetherto/pearpass-lib-vault/src/utils/buffer' {
   export const clearBuffer: (buffer: any) => void
   export const stringToBuffer: (value: string) => any
@@ -280,11 +288,14 @@ declare module '@tetherto/pearpass-lib-constants' {
   export const AUTO_LOCK_ENABLED: boolean
   export const DELETE_VAULT_ENABLED: boolean
   export const AUTHENTICATOR_ENABLED: boolean
-  export const DESIGN_VERSION: number
+  export const DESKTOP_DESIGN_VERSION: number
   export const MAX_IMPORT_RECORDS: number
   export const NATIVE_MESSAGING_BRIDGE_PEAR_LINK_PRODUCTION: string
   export const NATIVE_MESSAGING_BRIDGE_PEAR_LINK_STAGING: string
   export const UNSUPPORTED: boolean
+  export const PEARPASS_WEBSITE: string
+  export const PRIVACY_POLICY: string
+  export const TERMS_OF_USE: string
 }
 
 declare module '@tetherto/pearpass-lib-data-import' {

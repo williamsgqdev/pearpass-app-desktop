@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import {
   Button,
@@ -29,15 +29,19 @@ import {
 
 import { useRouter } from '../../context/RouterContext'
 import { useTranslation } from '../../hooks/useTranslation'
+import { logger } from '../../utils/logger'
 import { createStyles } from './SettingsViewV2.styles'
 import {
   AppPreferencesContent,
+  AppVersionContent,
   BlindPeersContent,
   ExportItemsContent,
   ImportItemsContent,
+  LanguageContent,
   MasterPasswordContent,
   ReportAProblemContent
 } from './content'
+import { YourVaultsContent } from './content/YourVaultsContent'
 
 export enum SettingsItemKey {
   AppPreferences = 'app-preferences',
@@ -66,13 +70,16 @@ type Section = {
 }
 
 const renderActiveContent = (
-  activeItemKey: SettingsItemKey
+  activeItemKey: SettingsItemKey,
+  currentVersion: string
 ): React.ReactNode => {
   switch (activeItemKey) {
     case SettingsItemKey.AppPreferences:
       return <AppPreferencesContent />
     case SettingsItemKey.MasterPassword:
       return <MasterPasswordContent />
+    case SettingsItemKey.YourVaults:
+      return <YourVaultsContent />
     case SettingsItemKey.BlindPeering:
       return <BlindPeersContent />
     case SettingsItemKey.ImportItems:
@@ -81,6 +88,10 @@ const renderActiveContent = (
       return <ExportItemsContent />
     case SettingsItemKey.ReportAProblem:
       return <ReportAProblemContent />
+    case SettingsItemKey.Language:
+      return <LanguageContent />
+    case SettingsItemKey.AppVersion:
+      return <AppVersionContent currentVersion={currentVersion} />
     default:
       return null
   }
@@ -191,6 +202,25 @@ export const SettingsViewV2 = () => {
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({})
+  const [currentVersion, setCurrentVersion] = useState('')
+
+  useEffect(() => {
+    const electronAPI = window.electronAPI
+    if (!electronAPI || typeof electronAPI.getConfig !== 'function') {
+      return
+    }
+
+    electronAPI
+      .getConfig()
+      .then((cfg) => {
+        if (cfg && typeof cfg.version === 'string') {
+          setCurrentVersion(cfg.version)
+        }
+      })
+      .catch((error) =>
+        logger.error('SettingsViewV2', 'Error getting runtime config:', error)
+      )
+  }, [])
 
   const toggleSection = (sectionKey: string) => {
     setExpandedSections((current) => ({
@@ -289,7 +319,7 @@ export const SettingsViewV2 = () => {
         </nav>
 
         <main style={styles.contentArea}>
-          {renderActiveContent(activeItemKey)}
+          {renderActiveContent(activeItemKey, currentVersion)}
         </main>
       </div>
     </div>

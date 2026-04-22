@@ -4,11 +4,11 @@ This is the Electron desktop app for PearPass. It's written in React + TypeScrip
 
 This document is for **anyone contributing UI** to the repo — new hires, current engineers, and AI coding assistants (Claude Code, Cursor, Codex, etc.). It captures the component catalog, styling conventions, file-naming rules, and patterns we use when building UI in this app. Read it once before your first UI change; keep it open when you're in doubt.
 
-## Design-system state — `DESIGN_VERSION === 2`
+## Design-system state — `DESKTOP_DESIGN_VERSION === 2`
 
-Which design renders at runtime is controlled by the `DESIGN_VERSION` flag from `@tetherto/pearpass-lib-constants` (resolved in [electron/runtime-config.cjs](electron/runtime-config.cjs) and exposed via `isV2()` in [src/utils/designVersion.js](src/utils/designVersion.js)).
+Which design renders at runtime is controlled by the `DESKTOP_DESIGN_VERSION` flag from `@tetherto/pearpass-lib-constants` (resolved in [electron/runtime-config.cjs](electron/runtime-config.cjs) and exposed via `isV2()` in [src/utils/designVersion.js](src/utils/designVersion.js)).
 
-**Currently `DESIGN_VERSION === 2`**, so kit components are the right choice for all new UI work. Legacy v1 components still live under [src/lib-react-components/](src/lib-react-components/) and are rendered whenever `isV2()` returns `false` — do not delete them as part of v2 work.
+**Currently `DESKTOP_DESIGN_VERSION === 2`**, so kit components are the right choice for all new UI work. Legacy v1 components still live under [src/lib-react-components/](src/lib-react-components/) and are rendered whenever `isV2()` returns `false` — do not delete them as part of v2 work.
 
 ## File naming: when to use the `V2` suffix
 

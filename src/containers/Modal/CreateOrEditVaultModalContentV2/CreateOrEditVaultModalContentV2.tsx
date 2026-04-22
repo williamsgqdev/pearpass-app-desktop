@@ -16,12 +16,14 @@ export type CreateOrEditVaultModalContentV2Props = {
   onClose: () => void
   onSuccess?: () => void
   vault?: Vault
+  shouldRedirectToMain?: boolean
 }
 
 export const CreateOrEditVaultModalContentV2 = ({
   onClose,
   onSuccess,
-  vault
+  vault,
+  shouldRedirectToMain = true
 }: CreateOrEditVaultModalContentV2Props) => {
   const isEditMode = !!vault
   const { t } = useTranslation()
@@ -89,8 +91,9 @@ export const CreateOrEditVaultModalContentV2 = ({
       await addDevice(getDeviceName())
 
       onSuccess?.()
-      navigate('vault', { recordType: 'all' })
-
+      if(shouldRedirectToMain) {
+        navigate('vault', { recordType: 'all' })
+      }
       setIsLoading(false)
     } catch (error) {
       setIsLoading(false)

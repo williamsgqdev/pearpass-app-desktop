@@ -243,6 +243,7 @@ export const CreateOrEditLoginModalContent = ({
         <${FormModalHeaderWrapper}
           buttons=${html`
             <${ButtonLittle}
+              key=${'createoredit-button-loadfile'}
               testId="createoredit-button-loadfile"
               startIcon=${ImageIcon}
               onClick=${handleFileLoad}
@@ -250,6 +251,7 @@ export const CreateOrEditLoginModalContent = ({
               ${i18n._('Load file')}
             <//>
             <${ButtonLittle}
+              key=${'createoredit-button-save'}
               testId="createoredit-button-save"
               startIcon=${SaveIcon}
               type="submit"

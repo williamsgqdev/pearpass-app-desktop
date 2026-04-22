@@ -18,7 +18,7 @@ function readDesignVersion() {
       'flags.js'
     )
     const content = fs.readFileSync(flagsPath, 'utf8')
-    const match = content.match(/DESIGN_VERSION\s*=\s*(\d+)/)
+    const match = content.match(/DESKTOP_DESIGN_VERSION\s*=\s*(\d+)/)
     return match ? Number(match[1]) : 1
   } catch {
     return 1

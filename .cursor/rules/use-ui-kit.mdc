@@ -8,11 +8,11 @@ alwaysApply: false
 
 This is the design system for the pearpass desktop app. All UI primitives come from here.
 
-## When these rules apply — `DESIGN_VERSION === 2`
+## When these rules apply — `DESKTOP_DESIGN_VERSION === 2`
 
-The active design is controlled by the `DESIGN_VERSION` flag from `@tetherto/pearpass-lib-constants` (read in `electron/runtime-config.cjs` and exposed via `isV2()` in `src/utils/designVersion.js`).
+The active design is controlled by the `DESKTOP_DESIGN_VERSION` flag from `@tetherto/pearpass-lib-constants` (read in `electron/runtime-config.cjs` and exposed via `isV2()` in `src/utils/designVersion.js`).
 
-**Currently `DESIGN_VERSION === 2`**, so kit components are the right choice for all new UI work today. The app is mid-migration from v1 (custom components in `src/lib-react-components/`) to v2 (kit-based). If the flag is ever flipped back to `1`, v1 components remain in place and continue to work — do not delete them.
+**Currently `DESKTOP_DESIGN_VERSION === 2`**, so kit components are the right choice for all new UI work today. The app is mid-migration from v1 (custom components in `src/lib-react-components/`) to v2 (kit-based). If the flag is ever flipped back to `1`, v1 components remain in place and continue to work — do not delete them.
 
 ## File naming: when to use the `V2` suffix
 
