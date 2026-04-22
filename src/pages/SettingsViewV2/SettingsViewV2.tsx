@@ -7,13 +7,13 @@ import {
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
 import {
+  ArrowBackOutined,
   BugReportFilled,
   Devices,
   HubFilled,
   InfoOutlined,
   Key,
   KeyboardArrowBottom,
-  KeyboardArrowLeftFilled,
   KeyboardArrowRightFilled,
   LayerFilled,
   LockOutlined,
@@ -32,8 +32,9 @@ import { useTranslation } from '../../hooks/useTranslation'
 import { createStyles } from './SettingsViewV2.styles'
 import {
   BlindPeersContent,
-  MasterPasswordContent,
-  ImportItemsContent
+  ExportItemsContent,
+  ImportItemsContent,
+  MasterPasswordContent
 } from './content'
 
 export enum SettingsItemKey {
@@ -72,6 +73,8 @@ const renderActiveContent = (
       return <BlindPeersContent />
     case SettingsItemKey.ImportItems:
       return <ImportItemsContent />
+    case SettingsItemKey.ExportItems:
+      return <ExportItemsContent />
     default:
       return null
   }
@@ -200,7 +203,9 @@ export const SettingsViewV2 = () => {
         <Button
           variant="tertiary"
           size="small"
-          iconBefore={<KeyboardArrowLeftFilled />}
+          iconBefore={
+            <ArrowBackOutined color={theme.colors.colorTextPrimary} />
+          }
           onClick={onBack}
           aria-label={t('Go back')}
         />

@@ -1,5 +1,11 @@
 import { BlindPeersContent } from './BlindPeersContent'
-import { MasterPasswordContent } from './MasterPasswordContent'
+import { ExportItemsContent } from './ExportItemsContent'
 import { ImportItemsContent } from './ImportItemsContent'
+import { MasterPasswordContent } from './MasterPasswordContent'
 
-export { BlindPeersContent, MasterPasswordContent, ImportItemsContent }
+export {
+  BlindPeersContent,
+  ExportItemsContent,
+  ImportItemsContent,
+  MasterPasswordContent
+}

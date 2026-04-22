@@ -25,7 +25,7 @@ import {
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
 import {
-  KeyboardArrowLeftFilled,
+  ArrowBackOutined,
   KeyboardArrowRightFilled
 } from '@tetherto/pearpass-lib-ui-kit/icons'
 import {
@@ -536,14 +536,12 @@ export const ImportItemsContent = () => {
               size="small"
               variant="tertiary"
               iconBefore={
-                <KeyboardArrowLeftFilled
-                  color={theme.colors.colorTextPrimary}
-                />
+                <ArrowBackOutined color={theme.colors.colorTextPrimary} />
               }
               onClick={handleBack}
-            >
-              {t('Back')}
-            </Button>
+              aria-label={t('back')}
+            />
+            <Text>{t('Back')}</Text>
           </div>
 
           <div style={styles.header}>

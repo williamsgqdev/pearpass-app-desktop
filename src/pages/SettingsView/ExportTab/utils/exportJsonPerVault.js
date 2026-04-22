@@ -4,6 +4,10 @@ import { encryptExportData } from '@tetherto/pearpass-lib-vault'
 import { downloadFile } from './downloadFile'
 import { downloadZip } from './downloadZip'
 
+/**
+ * @param {unknown[]} data
+ * @param {string | null} [encryptionPassword]
+ */
 export const handleExportJsonPerVaultTest = async (
   data,
   encryptionPassword = null
