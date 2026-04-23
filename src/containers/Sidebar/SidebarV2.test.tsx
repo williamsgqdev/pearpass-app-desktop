@@ -7,6 +7,18 @@ const mockNavigate = jest.fn()
 const mockCloseAllInstances = jest.fn()
 const mockResetState = jest.fn()
 const mockSetIsLoading = jest.fn()
+const mockDeleteFolder = jest.fn()
+const mockSetModal = jest.fn()
+const mockCloseModal = jest.fn()
+
+let mockRouterData: Record<string, unknown> = {}
+let mockFoldersData: {
+  customFolders: Record<
+    string,
+    { name: string; records: Array<{ data?: unknown }> }
+  >
+  favorites: { records: unknown[] }
+} = { customFolders: {}, favorites: { records: [] } }
 
 jest.mock('@tetherto/pearpass-lib-constants', () => ({
   AUTHENTICATOR_ENABLED: false
@@ -23,7 +35,10 @@ jest.mock('@tetherto/pearpass-lib-vault', () => ({
     PASS_PHRASE: 'pass_phrase'
   },
   closeAllInstances: (...args: unknown[]) => mockCloseAllInstances(...args),
-  useFolders: () => ({ data: { customFolders: {}, favorites: { records: [] } } }),
+  useFolders: () => ({
+    data: mockFoldersData,
+    deleteFolder: mockDeleteFolder
+  }),
   useRecordCountsByType: () => ({ data: {} }),
   useVault: () => ({ data: { name: 'Test Vault' } }),
   useVaults: () => ({ resetState: mockResetState })
@@ -48,17 +63,35 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => {
     NavbarListItem: ({
       label,
       onClick,
+      onContextMenu,
       testID
     }: {
       label?: string
-      onClick?: () => void
+      onClick?: (e: React.MouseEvent) => void
+      onContextMenu?: (e: React.MouseEvent) => void
       testID?: string
     }) =>
       React.createElement(
         'button',
-        { type: 'button', 'data-testid': testID, onClick },
+        { type: 'button', 'data-testid': testID, onClick, onContextMenu },
         label
       ),
+    ContextMenu: ({
+      open,
+      children,
+      testID
+    }: {
+      open?: boolean
+      children?: React.ReactNode
+      testID?: string
+    }) =>
+      open
+        ? React.createElement(
+            'div',
+            { role: 'menu', 'data-testid': testID },
+            children
+          )
+        : null,
     Text: ({ children }: { children: React.ReactNode }) =>
       React.createElement('span', null, children)
   }
@@ -90,7 +123,10 @@ jest.mock('@tetherto/pearpass-lib-ui-kit/icons', () => ({
   Add: iconStub,
   Close: iconStub,
   CreateNewFolder: iconStub,
+  EditOutlined: iconStub,
   ExpandMore: iconStub,
+  Folder: iconStub,
+  FolderCopy: iconStub,
   Layers: iconStub,
   LockFilled: iconStub,
   LockOutlined: iconStub,
@@ -98,6 +134,7 @@ jest.mock('@tetherto/pearpass-lib-ui-kit/icons', () => ({
   SettingsOutlined: iconStub,
   StarBorder: iconStub,
   StarFilled: iconStub,
+  TrashOutlined: iconStub,
   TwoFactorAuthenticationOutlined: iconStub,
   AccountCircleFilled: iconStub,
   AccountCircleOutlined: iconStub,
@@ -111,11 +148,11 @@ jest.mock('@tetherto/pearpass-lib-ui-kit/icons', () => ({
 }))
 
 jest.mock('../../context/RouterContext', () => ({
-  useRouter: () => ({ navigate: mockNavigate, data: {} })
+  useRouter: () => ({ navigate: mockNavigate, data: mockRouterData })
 }))
 
 jest.mock('../../context/ModalContext', () => ({
-  useModal: () => ({ setModal: jest.fn(), closeModal: jest.fn() })
+  useModal: () => ({ setModal: mockSetModal, closeModal: mockCloseModal })
 }))
 
 jest.mock('../../context/LoadingContext', () => ({
@@ -126,15 +163,44 @@ jest.mock('../../hooks/useTranslation', () => ({
   useTranslation: () => ({ t: (s: string) => s })
 }))
 
-jest.mock('../Modal/CreateFolderModalContentV2/CreateFolderModalContentV2', () => ({
-  CreateFolderModalContentV2: () => null
-}))
+jest.mock('../Modal/CreateFolderModalContentV2/CreateFolderModalContentV2', () => {
+  const React = require('react')
+  return {
+    CreateFolderModalContentV2: (props: { initialValues?: { title: string } }) =>
+      React.createElement('div', {
+        'data-testid': 'mock-create-folder-modal',
+        'data-initial-title': props.initialValues?.title ?? ''
+      })
+  }
+})
+
+jest.mock('../Modal/DeleteFolderModalContentV2/DeleteFolderModalContentV2', () => {
+  const React = require('react')
+  return {
+    DeleteFolderModalContentV2: (props: { folderName: string; count: number }) =>
+      React.createElement('div', {
+        'data-testid': 'mock-delete-folder-modal',
+        'data-folder-name': props.folderName,
+        'data-count': String(props.count)
+      })
+  }
+})
 
 import { SidebarV2 } from './SidebarV2'
+
+const makeFolder = (
+  name: string,
+  itemCount: number
+): { name: string; records: Array<{ data?: unknown }> } => ({
+  name,
+  records: Array.from({ length: itemCount }, () => ({ data: {} }))
+})
 
 describe('SidebarV2 — lock app flow', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockRouterData = {}
+    mockFoldersData = { customFolders: {}, favorites: { records: [] } }
   })
 
   it('closes instances, navigates to master password, and resets vault state', async () => {
@@ -161,5 +227,96 @@ describe('SidebarV2 — lock app flow', () => {
     fireEvent.click(screen.getByTestId('sidebar-settings-button'))
 
     expect(mockNavigate).toHaveBeenCalledWith('settings', {})
+  })
+})
+
+describe('SidebarV2 — folder context menu', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockRouterData = {}
+    mockFoldersData = {
+      customFolders: {
+        work: makeFolder('work', 2),
+        empty: makeFolder('empty', 0),
+        other: makeFolder('other', 1)
+      },
+      favorites: { records: [] }
+    }
+  })
+
+  it('opens the menu with Rename and Delete on right-click', () => {
+    render(<SidebarV2 />)
+
+    expect(screen.queryByTestId('sidebar-folder-menu-work')).toBeNull()
+
+    fireEvent.contextMenu(screen.getByTestId('sidebar-folder-work'))
+
+    expect(screen.getByTestId('sidebar-folder-menu-work')).toBeInTheDocument()
+    expect(
+      screen.getByTestId('sidebar-folder-menu-rename-work')
+    ).toBeInTheDocument()
+    expect(
+      screen.getByTestId('sidebar-folder-menu-delete-work')
+    ).toBeInTheDocument()
+  })
+
+  it('Rename opens CreateFolderModalContentV2 prefilled with the folder title', () => {
+    render(<SidebarV2 />)
+
+    fireEvent.contextMenu(screen.getByTestId('sidebar-folder-work'))
+    fireEvent.click(screen.getByTestId('sidebar-folder-menu-rename-work'))
+
+    expect(mockSetModal).toHaveBeenCalledTimes(1)
+    const modal = mockSetModal.mock.calls[0][0] as React.ReactElement
+    render(modal)
+    const instance = screen.getByTestId('mock-create-folder-modal')
+    expect(instance.getAttribute('data-initial-title')).toBe('work')
+  })
+
+  it('Delete on an empty folder calls deleteFolder directly (no modal)', () => {
+    render(<SidebarV2 />)
+
+    fireEvent.contextMenu(screen.getByTestId('sidebar-folder-empty'))
+    fireEvent.click(screen.getByTestId('sidebar-folder-menu-delete-empty'))
+
+    expect(mockDeleteFolder).toHaveBeenCalledWith('empty')
+    expect(mockSetModal).not.toHaveBeenCalled()
+  })
+
+  it('Delete on an empty active folder navigates away to All Folders', () => {
+    mockRouterData = { folder: 'empty', recordType: 'all' }
+    render(<SidebarV2 />)
+
+    fireEvent.contextMenu(screen.getByTestId('sidebar-folder-empty'))
+    fireEvent.click(screen.getByTestId('sidebar-folder-menu-delete-empty'))
+
+    expect(mockDeleteFolder).toHaveBeenCalledWith('empty')
+    expect(mockNavigate).toHaveBeenCalledWith('vault', { recordType: 'all' })
+  })
+
+  it('Delete on a non-empty folder opens DeleteFolderModalContentV2 with the item count', () => {
+    render(<SidebarV2 />)
+
+    fireEvent.contextMenu(screen.getByTestId('sidebar-folder-work'))
+    fireEvent.click(screen.getByTestId('sidebar-folder-menu-delete-work'))
+
+    expect(mockDeleteFolder).not.toHaveBeenCalled()
+    expect(mockSetModal).toHaveBeenCalledTimes(1)
+    const modal = mockSetModal.mock.calls[0][0] as React.ReactElement
+    render(modal)
+    const instance = screen.getByTestId('mock-delete-folder-modal')
+    expect(instance.getAttribute('data-folder-name')).toBe('work')
+    expect(instance.getAttribute('data-count')).toBe('2')
+  })
+
+  it('opening one folder menu closes any other open menu', () => {
+    render(<SidebarV2 />)
+
+    fireEvent.contextMenu(screen.getByTestId('sidebar-folder-work'))
+    expect(screen.getByTestId('sidebar-folder-menu-work')).toBeInTheDocument()
+
+    fireEvent.contextMenu(screen.getByTestId('sidebar-folder-other'))
+    expect(screen.getByTestId('sidebar-folder-menu-other')).toBeInTheDocument()
+    expect(screen.queryByTestId('sidebar-folder-menu-work')).toBeNull()
   })
 })

@@ -4,6 +4,26 @@ import { rawTokens } from '@tetherto/pearpass-lib-ui-kit'
 export const SIDEBAR_WIDTH_EXPANDED = 250
 export const SIDEBAR_WIDTH_COLLAPSED = 57
 
+const SIDEBAR_HORIZONTAL_PADDING = rawTokens.spacing12
+const FOLDERS_HEADER_HORIZONTAL_PADDING = rawTokens.spacing4
+
+// Icon (16) + padding (4×2) + border (1×2).
+const COLLAPSED_SMALL_ICON_BUTTON_WIDTH = 26
+const COLLAPSED_CHEVRON_WIDTH = 16
+
+// translateX offsets to re-center a flex-anchored child in the collapsed column.
+export const COLLAPSE_BUTTON_CENTER_SHIFT_PX =
+  (SIDEBAR_WIDTH_COLLAPSED - COLLAPSED_SMALL_ICON_BUTTON_WIDTH) / 2 -
+  (SIDEBAR_WIDTH_COLLAPSED -
+    SIDEBAR_HORIZONTAL_PADDING -
+    COLLAPSED_SMALL_ICON_BUTTON_WIDTH)
+
+export const FOLDERS_CHEVRON_CENTER_SHIFT_PX =
+  (SIDEBAR_WIDTH_COLLAPSED - COLLAPSED_CHEVRON_WIDTH) / 2 -
+  (SIDEBAR_HORIZONTAL_PADDING + FOLDERS_HEADER_HORIZONTAL_PADDING)
+
+export const FOLDER_CONTEXT_MENU_WIDTH = 220
+
 export const createStyles = (colors: ThemeColors, isCollapsed: boolean) => ({
   wrapper: {
     display: 'flex' as const,
@@ -20,7 +40,6 @@ export const createStyles = (colors: ThemeColors, isCollapsed: boolean) => ({
   vaultSelector: {
     display: 'flex' as const,
     alignItems: 'center' as const,
-    justifyContent: isCollapsed ? ('center' as const) : ('flex-start' as const),
     gap: rawTokens.spacing8,
     width: '100%',
     height: 44,
@@ -31,9 +50,17 @@ export const createStyles = (colors: ThemeColors, isCollapsed: boolean) => ({
     flexShrink: 0
   },
 
+  vaultIconHidden: {
+    display: 'none' as const
+  },
+
   vaultNameGroup: {
     flex: 1,
     minWidth: 0
+  },
+
+  vaultNameGroupHidden: {
+    display: 'none' as const
   },
 
   vaultNameRow: {
@@ -53,6 +80,7 @@ export const createStyles = (colors: ThemeColors, isCollapsed: boolean) => ({
   },
 
   chevron: {
+    flexShrink: 0,
     transition: 'transform 150ms ease'
   },
 
@@ -60,12 +88,14 @@ export const createStyles = (colors: ThemeColors, isCollapsed: boolean) => ({
     transform: 'rotate(180deg)'
   },
 
-  chevronCollapsed: {
-    transform: 'rotate(-90deg)'
-  },
-
-  collapseButtonFlipped: {
-    transform: 'rotate(180deg)'
+  collapseButtonSlot: {
+    marginInlineStart: 'auto' as const,
+    display: 'flex' as const,
+    // Use the individual-transform properties so `translate` can animate
+    // while `rotate` flips instantly.
+    translate: `${isCollapsed ? COLLAPSE_BUTTON_CENTER_SHIFT_PX : 0}px`,
+    rotate: `${isCollapsed ? 180 : 0}deg`,
+    transition: 'translate 150ms ease'
   },
 
   scrollArea: {
@@ -98,7 +128,6 @@ export const createStyles = (colors: ThemeColors, isCollapsed: boolean) => ({
   foldersHeader: {
     display: 'flex' as const,
     alignItems: 'center' as const,
-    justifyContent: isCollapsed ? ('center' as const) : ('flex-start' as const),
     gap: rawTokens.spacing4,
     height: 32,
     padding: `${rawTokens.spacing8}px ${rawTokens.spacing4}px`,
@@ -115,10 +144,37 @@ export const createStyles = (colors: ThemeColors, isCollapsed: boolean) => ({
   foldersHeaderToggleInner: {
     display: 'flex' as const,
     alignItems: 'center' as const,
-    justifyContent: isCollapsed ? ('center' as const) : ('flex-start' as const),
     gap: rawTokens.spacing4,
     cursor: 'pointer' as const,
     userSelect: 'none' as const
+  },
+
+  // Kept mounted and allowed to shrink so the chevron keeps its size when collapsed.
+  foldersHeaderLabel: {
+    opacity: isCollapsed ? 0 : 1,
+    transition: 'opacity 150ms ease',
+    minWidth: 0,
+    overflow: 'hidden' as const,
+    whiteSpace: 'nowrap' as const
+  },
+
+  // Anchors the right-click ContextMenu so it opens just below the row,
+  // aligned to its right edge, regardless of where the cursor was clicked.
+  folderRow: {
+    position: 'relative' as const,
+    width: '100%'
+  },
+
+  folderRowMenuAnchor: {
+    position: 'absolute' as const,
+    bottom: 0,
+    right: 0
+  },
+
+  folderRowMenuTrigger: {
+    display: 'block' as const,
+    width: 0,
+    height: 0
   },
 
   footerSection: {

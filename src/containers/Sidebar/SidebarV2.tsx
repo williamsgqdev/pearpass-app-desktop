@@ -10,6 +10,7 @@ import {
 } from '@tetherto/pearpass-lib-vault'
 import {
   Button,
+  ContextMenu,
   NavbarListItem,
   Text,
   useTheme
@@ -18,19 +19,25 @@ import { Pressable } from '@tetherto/pearpass-lib-ui-kit/components/Pressable'
 import {
   Close,
   CreateNewFolder,
+  EditOutlined,
   ExpandMore,
+  Folder,
+  FolderCopy,
   LockFilled,
   LockOutlined,
   MenuOpen,
   SettingsOutlined,
   StarBorder,
   StarFilled,
-  TwoFactorAuthenticationOutlined,
-  Folder,
-  FolderCopy
+  TrashOutlined,
+  TwoFactorAuthenticationOutlined
 } from '@tetherto/pearpass-lib-ui-kit/icons'
 
-import { createStyles } from './SidebarV2.styles'
+import {
+  createStyles,
+  FOLDER_CONTEXT_MENU_WIDTH,
+  FOLDERS_CHEVRON_CENTER_SHIFT_PX
+} from './SidebarV2.styles'
 import { VaultSelector } from './VaultSelector/VaultSelector'
 import { NAVIGATION_ROUTES } from '../../constants/navigation'
 import { useLoadingContext } from '../../context/LoadingContext'
@@ -41,6 +48,7 @@ import { useTranslation } from '../../hooks/useTranslation'
 import { FAVORITES_FOLDER_ID } from '../../utils/isFavorite'
 import { sortByName } from '../../utils/sortByName'
 import { CreateFolderModalContentV2 } from '../Modal/CreateFolderModalContentV2/CreateFolderModalContentV2'
+import { DeleteFolderModalContentV2 } from '../Modal/DeleteFolderModalContentV2/DeleteFolderModalContentV2'
 
 export const SidebarV2 = () => {
   const { t } = useTranslation()
@@ -48,11 +56,12 @@ export const SidebarV2 = () => {
 
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isVaultSelectorOpen, setIsVaultSelectorOpen] = useState(false)
+  const [openFolderMenu, setOpenFolderMenu] = useState<string | null>(null)
   const styles = createStyles(theme.colors, isCollapsed)
 
   const { navigate, data: routerData } = useRouter()
   const { data: vaultData } = useVault()
-  const { data: foldersData } = useFolders()
+  const { data: foldersData, deleteFolder } = useFolders()
   const { data: recordCounts } = useRecordCountsByType()
   const { resetState } = useVaults()
   const { setModal, closeModal } = useModal()
@@ -101,6 +110,32 @@ export const SidebarV2 = () => {
     setModal(<CreateFolderModalContentV2 onClose={closeModal} />)
   }
 
+  const handleRenameFolder = (folderName: string) => {
+    setModal(
+      <CreateFolderModalContentV2
+        initialValues={{ title: folderName }}
+        onClose={closeModal}
+      />
+    )
+  }
+
+  const handleDeleteFolder = (folderName: string, count: number) => {
+    if (count === 0) {
+      void deleteFolder(folderName)
+      if (routerData?.folder === folderName) {
+        navigate('vault', { recordType: 'all' })
+      }
+      return
+    }
+    setModal(
+      <DeleteFolderModalContentV2
+        folderName={folderName}
+        count={count}
+        onClose={closeModal}
+      />
+    )
+  }
+
   const handleSettingsClick = () => {
     navigate('settings', {})
   }
@@ -123,7 +158,7 @@ export const SidebarV2 = () => {
   const iconTextSecondary = { color: theme.colors.colorTextSecondary }
 
   const renderCollapseButton = () => (
-    <div style={isCollapsed ? styles.collapseButtonFlipped : undefined}>
+    <div style={styles.collapseButtonSlot}>
       <Button
         variant="tertiary"
         size="small"
@@ -142,7 +177,8 @@ export const SidebarV2 = () => {
       ...(isVaultSelectorOpen ? styles.chevronFlipped : {})
     }
 
-    const rightButton = isVaultSelectorOpen ? (
+    const showCloseButton = !isCollapsed && isVaultSelectorOpen
+    const rightButton = showCloseButton ? (
       <Button
         variant="tertiary"
         size="small"
@@ -157,8 +193,15 @@ export const SidebarV2 = () => {
 
     return (
       <div style={styles.vaultSelector} data-testid="sidebar-vault-selector">
-        <LockFilled width={16} height={16} style={iconTextPrimary} />
-        <div style={styles.vaultNameGroup}>
+        <div style={isCollapsed ? styles.vaultIconHidden : undefined}>
+          <LockFilled width={16} height={16} style={iconTextPrimary} />
+        </div>
+        <div
+          style={{
+            ...styles.vaultNameGroup,
+            ...(isCollapsed ? styles.vaultNameGroupHidden : {})
+          }}
+        >
           <Pressable
             onClick={() => setIsVaultSelectorOpen((value) => !value)}
             data-testid="sidebar-vault-selector-toggle"
@@ -185,11 +228,7 @@ export const SidebarV2 = () => {
 
   return (
     <aside style={styles.wrapper} data-testid="sidebar-v2">
-      {isCollapsed ? (
-        <div style={styles.vaultSelector}>{renderCollapseButton()}</div>
-      ) : (
-        renderVaultHeader()
-      )}
+      {renderVaultHeader()}
 
       <div style={styles.scrollArea}>
         {isVaultSelectorOpen && (
@@ -239,17 +278,19 @@ export const SidebarV2 = () => {
                     style={{
                       ...iconTextSecondary,
                       ...styles.chevron,
-                      ...(!isFoldersExpanded ? styles.chevronCollapsed : {})
+                      transform: `translateX(${
+                        isCollapsed ? FOLDERS_CHEVRON_CENTER_SHIFT_PX : 0
+                      }px) rotate(${!isFoldersExpanded ? -90 : 0}deg)`
                     }}
                   />
-                  {!isCollapsed && (
+                  <div style={styles.foldersHeaderLabel}>
                     <Text
                       variant="labelEmphasized"
                       color={theme.colors.colorTextSecondary}
                     >
                       {t('Folders')}
                     </Text>
-                  )}
+                  </div>
                 </div>
               </Pressable>
             </div>
@@ -304,31 +345,24 @@ export const SidebarV2 = () => {
                 onClick={() => handleFolderClick(FAVORITES_FOLDER_ID)}
               />
 
-              {customFolders.map((folder) => {
-                const selected = selectedFolderName === folder.name
-
-                return (
-                  <NavbarListItem
-                    key={folder.name}
-                    testID={`sidebar-folder-${folder.name}`}
-                    label={folder.name}
-                    count={isCollapsed ? undefined : folder.count}
-                    selected={selected}
-                    variant={selected ? 'default' : 'secondary'}
-                    size="small"
-                    icon={
-                      <Folder
-                        color={
-                          selected
-                            ? theme.colors.colorTextPrimary
-                            : theme.colors.colorTextSecondary
-                        }
-                      />
-                    }
-                    onClick={() => handleFolderClick(folder.name)}
-                  />
-                )
-              })}
+              {customFolders.map((folder) => (
+                <FolderRow
+                  key={folder.name}
+                  folder={folder}
+                  selected={selectedFolderName === folder.name}
+                  isCollapsed={isCollapsed}
+                  menuOpen={openFolderMenu === folder.name}
+                  onMenuOpenChange={(open) =>
+                    setOpenFolderMenu(open ? folder.name : null)
+                  }
+                  styles={styles}
+                  theme={theme}
+                  onSelect={handleFolderClick}
+                  onRename={handleRenameFolder}
+                  onDelete={handleDeleteFolder}
+                  t={t}
+                />
+              ))}
             </>
           )}
         </div>
@@ -381,5 +415,90 @@ export const SidebarV2 = () => {
         />
       </div>
     </aside>
+  )
+}
+
+type FolderRowProps = {
+  folder: { name: string; count: number }
+  selected: boolean
+  isCollapsed: boolean
+  menuOpen: boolean
+  onMenuOpenChange: (open: boolean) => void
+  styles: ReturnType<typeof createStyles>
+  theme: ReturnType<typeof useTheme>['theme']
+  onSelect: (folderName: string) => void
+  onRename: (folderName: string) => void
+  onDelete: (folderName: string, count: number) => void
+  t: ReturnType<typeof useTranslation>['t']
+}
+
+const FolderRow = ({
+  folder,
+  selected,
+  isCollapsed,
+  menuOpen,
+  onMenuOpenChange,
+  styles,
+  theme,
+  onSelect,
+  onRename,
+  onDelete,
+  t
+}: FolderRowProps) => {
+  const iconColor = selected
+    ? theme.colors.colorTextPrimary
+    : theme.colors.colorTextSecondary
+
+  const withMenuClose = (handler: () => void) => () => {
+    onMenuOpenChange(false)
+    handler()
+  }
+
+  return (
+    <div style={styles.folderRow}>
+      <NavbarListItem
+        testID={`sidebar-folder-${folder.name}`}
+        label={folder.name}
+        count={isCollapsed ? undefined : folder.count}
+        selected={selected}
+        variant={selected ? 'default' : 'secondary'}
+        size="small"
+        icon={<Folder color={iconColor} />}
+        onClick={() => onSelect(folder.name)}
+        onContextMenu={(e: React.MouseEvent) => {
+          e.preventDefault()
+          onMenuOpenChange(true)
+        }}
+      />
+      <div style={styles.folderRowMenuAnchor}>
+        <ContextMenu
+          open={menuOpen}
+          onOpenChange={onMenuOpenChange}
+          menuWidth={FOLDER_CONTEXT_MENU_WIDTH}
+          testID={`sidebar-folder-menu-${folder.name}`}
+          trigger={<span style={styles.folderRowMenuTrigger} />}
+        >
+          <NavbarListItem
+            size="small"
+            icon={<EditOutlined color={theme.colors.colorTextPrimary} />}
+            label={t('Rename Folder')}
+            testID={`sidebar-folder-menu-rename-${folder.name}`}
+            onClick={withMenuClose(() => onRename(folder.name))}
+          />
+          <NavbarListItem
+            size="small"
+            variant="destructive"
+            icon={
+              <TrashOutlined
+                color={theme.colors.colorSurfaceDestructiveElevated}
+              />
+            }
+            label={t('Delete Folder')}
+            testID={`sidebar-folder-menu-delete-${folder.name}`}
+            onClick={withMenuClose(() => onDelete(folder.name, folder.count))}
+          />
+        </ContextMenu>
+      </div>
+    </div>
   )
 }
