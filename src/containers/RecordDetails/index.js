@@ -7,6 +7,7 @@ import { useRecordById, useRecords } from '@tetherto/pearpass-lib-vault'
 import { html } from 'htm/react'
 
 import { RecordDetailsContent } from './RecordDetailsContent'
+import { RecordDetailsV2 } from './RecordDetailsV2'
 import {
   Fields,
   FavoriteButtonWrapper,
@@ -33,8 +34,17 @@ import {
   KebabMenuIcon,
   StarIcon
 } from '../../lib-react-components'
+import { isV2 } from '../../utils/designVersion'
 
 export const RecordDetails = () => {
+  if (isV2()) {
+    return html`<${RecordDetailsV2} />`
+  }
+
+  return html`<${RecordDetailsV1} />`
+}
+
+const RecordDetailsV1 = () => {
   const { i18n } = useLingui()
 
   const [isOpen, setIsOpen] = useState(false)

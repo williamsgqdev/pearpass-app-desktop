@@ -60,6 +60,7 @@ export const Record = ({
   const { actions } = useRecordActionItems({
     record,
     onSelect,
+    excludeTypes: ['edit'],
     onClose: () => {
       setIsOpen(false)
     }

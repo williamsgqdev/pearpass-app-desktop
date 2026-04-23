@@ -6,8 +6,11 @@
 import React, { useState, useEffect } from 'react'
 
 import { CLIPBOARD_CLEAR_TIMEOUT } from '@tetherto/pearpass-lib-constants'
+import { Check } from '@tetherto/pearpass-lib-ui-kit/icons'
 
+import { useTranslation } from './useTranslation'
 import { LOCAL_STORAGE_KEYS } from '../constants/localStorage'
+import { useToast } from '../context/ToastContext'
 import { logger } from '../utils/logger'
 
 /**
@@ -15,6 +18,9 @@ import { logger } from '../utils/logger'
  * @returns {{ isCopied: boolean, copyToClipboard: (text: string) => boolean, isCopyToClipboardDisabled: boolean }}
  */
 export const useCopyToClipboard = ({ onCopy } = {}) => {
+  const { t } = useTranslation()
+  const toastCtx = useToast()
+  const setToast = toastCtx?.setToast
   const [isCopyToClipboardDisabled, setIsCopyToClipboardDisabled] =
     useState(true)
   const [isCopied, setIsCopied] = useState(false)
@@ -39,7 +45,11 @@ export const useCopyToClipboard = ({ onCopy } = {}) => {
     navigator.clipboard.writeText(text).then(
       () => {
         setIsCopied(true)
-        onCopy?.()
+        if (onCopy) {
+          onCopy()
+        } else {
+          setToast?.({ message: t('Copied to Clipboard'), icon: Check })
+        }
         // Clear clipboard automatically after delay
         if (window.electronAPI) {
           window.electronAPI.clearClipboardAfter?.(

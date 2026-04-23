@@ -2,6 +2,7 @@ import { useLingui } from '@lingui/react'
 import { useRecords } from '@tetherto/pearpass-lib-vault'
 import { html } from 'htm/react'
 
+import { useCreateOrEditRecord } from './useCreateOrEditRecord'
 import { ConfirmationModalContent } from '../containers/Modal/ConfirmationModalContent'
 import { MoveFolderModalContent } from '../containers/Modal/MoveFolderModalContent'
 import { MoveFolderModalContentV2 } from '../containers/Modal/MoveFolderModalContentV2/MoveFolderModalContentV2'
@@ -36,6 +37,7 @@ export const useRecordActionItems = ({
   const { data: routerData, navigate, currentPage } = useRouter()
 
   const { deleteRecords, updateFavoriteState } = useRecords()
+  const { handleCreateOrEditRecord } = useCreateOrEditRecord()
 
   const handleDeleteConfirm = () => {
     if (routerData?.recordId === record?.id) {
@@ -74,6 +76,15 @@ export const useRecordActionItems = ({
     onClose?.()
   }
 
+  const handleEdit = () => {
+    handleCreateOrEditRecord({
+      recordType: record?.type,
+      initialRecord: record
+    })
+
+    onClose?.()
+  }
+
   const handleMoveClick = () => {
     const VersionBasedMoveFolderModalContent = isV2()
       ? MoveFolderModalContentV2
@@ -86,7 +97,25 @@ export const useRecordActionItems = ({
     onClose?.()
   }
 
-  const defaultActions = [
+  const v2Actions = [
+    { name: i18n._('Select element'), type: 'select', click: handleSelect },
+    { name: i18n._('Edit'), type: 'edit', click: handleEdit },
+    {
+      name: i18n._(
+        record?.isFavorite ? 'Remove from Favorites' : 'Add to Favorites'
+      ),
+      type: 'favorite',
+      click: handleFavoriteToggle
+    },
+    {
+      name: i18n._('Move to Another Folder'),
+      type: 'move',
+      click: handleMoveClick
+    },
+    { name: i18n._('Delete Item'), type: 'delete', click: handleDelete }
+  ]
+
+  const v1Actions = [
     { name: i18n._('Select element'), type: 'select', click: handleSelect },
     {
       name: i18n._(
@@ -102,6 +131,8 @@ export const useRecordActionItems = ({
     },
     { name: i18n._('Delete element'), type: 'delete', click: handleDelete }
   ]
+
+  const defaultActions = isV2() ? v2Actions : v1Actions
 
   const filteredActions = excludeTypes.length
     ? defaultActions.filter((action) => !excludeTypes.includes(action.type))
