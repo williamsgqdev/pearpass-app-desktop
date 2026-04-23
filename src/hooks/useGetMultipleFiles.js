@@ -5,10 +5,10 @@ import { vaultGetFile } from '@tetherto/pearpass-lib-vault'
 import { logger } from '../utils/logger'
 
 /**
- * @param {Object} param0
- * @param {string[]} param0.fieldNames
- * @param {Function} param0.updateValues
- * @param {Object} param0.initialRecord
+ * @param {object} [param0]
+ * @param {string[]} [param0.fieldNames]
+ * @param {(name: string, value: unknown) => void} [param0.updateValues]
+ * @param {{ data?: Record<string, unknown> } | undefined} [param0.initialRecord]
  */
 export const useGetMultipleFiles = ({
   fieldNames,
