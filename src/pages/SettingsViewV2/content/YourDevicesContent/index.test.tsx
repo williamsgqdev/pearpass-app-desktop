@@ -14,35 +14,15 @@ jest.mock('../../../../hooks/useTranslation', () => ({
   })
 }))
 
-const mockSetModal = jest.fn()
-jest.mock('../../../../context/ModalContext', () => ({
-  useModal: () => ({
-    setModal: mockSetModal
-  })
-}))
-
-let mockVaultData: {
-  devices?: Array<{ id?: string; name?: string; createdAt?: number }>
-} = {
-  devices: []
+const mockToggleBrowserExtension = jest.fn()
+let mockExtensionState = {
+  isBrowserExtensionEnabled: false,
+  toggleBrowserExtension: mockToggleBrowserExtension
 }
 
-jest.mock('@tetherto/pearpass-lib-vault', () => ({
-  useVault: () => ({
-    data: mockVaultData
-  })
+jest.mock('../../../../hooks/useConnectExtension', () => ({
+  useConnectExtension: () => mockExtensionState
 }))
-
-jest.mock('@tetherto/pear-apps-utils-date', () => ({
-  formatDate: () => '10 Jan 2026'
-}))
-
-jest.mock(
-  '../../../../containers/Modal/AddDeviceModalContentV2/AddDeviceModalContentV2',
-  () => ({
-    AddDeviceModalContentV2: () => <div data-testid="add-device-modal" />
-  })
-)
 
 jest.mock('./styles', () => ({
   createStyles: () => ({
@@ -50,91 +30,179 @@ jest.mock('./styles', () => ({
     sectionHeading: {},
     sectionCard: {},
     list: {},
-    listItemBorder: {},
     iconWrap: {},
-    footer: {}
+    emptyBrowserStateWrap: {},
+    emptyStateCaptions: {},
+    emptyStateFooter: {}
   })
 }))
 
-const mockTheme = {
-  theme: {
-    colors: {
-      colorTextSecondary: '#888',
-      colorTextPrimary: '#fff',
-      colorAccentActive: '#22a'
-    }
-  }
-}
-
 jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
-  useTheme: () => mockTheme,
-  PageHeader: ({ title }: { title: React.ReactNode }) => <h1>{title}</h1>,
-  Text: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  ListItem: (props: {
-    title?: React.ReactNode
+  useTheme: () => ({
+    theme: {
+      colors: {
+        colorTextSecondary: '#888',
+        colorTextPrimary: '#fff',
+        colorAccentActive: '#22a'
+      }
+    }
+  }),
+  PageHeader: ({
+    title
+  }: {
+    title: React.ReactNode
     subtitle?: React.ReactNode
-    testID?: string
-  }) => (
-    <div data-testid={props.testID}>
-      <div>{props.title}</div>
-      <div>{props.subtitle}</div>
-    </div>
-  ),
+    as?: string
+  }) => <h1>{title}</h1>,
+  Text: ({
+    children
+  }: {
+    children: React.ReactNode
+    [key: string]: unknown
+  }) => <div>{children}</div>,
   Button: (props: {
     children?: React.ReactNode
     onClick?: () => void
     'data-testid'?: string
+    'aria-label'?: string
+    [key: string]: unknown
   }) => (
     <button
       type="button"
       data-testid={props['data-testid']}
+      aria-label={props['aria-label']}
       onClick={props.onClick}
     >
       {props.children}
+    </button>
+  ),
+  ListItem: (props: {
+    testID?: string
+    title?: React.ReactNode
+    rightElement?: React.ReactNode
+    [key: string]: unknown
+  }) => (
+    <div data-testid={props.testID}>
+      <div>{props.title}</div>
+      {props.rightElement}
+    </div>
+  ),
+  ContextMenu: ({
+    children,
+    trigger
+  }: {
+    children: React.ReactNode
+    trigger: React.ReactNode
+    [key: string]: unknown
+  }) => (
+    <div>
+      {trigger}
+      {children}
+    </div>
+  ),
+  NavbarListItem: (props: {
+    label: string
+    onClick?: () => void
+    [key: string]: unknown
+  }) => (
+    <button type="button" onClick={props.onClick}>
+      {props.label}
     </button>
   )
 }))
 
 jest.mock('@tetherto/pearpass-lib-ui-kit/icons', () => ({
-  Add: () => null,
-  Devices: () => null,
-  LaptopMac: () => null,
-  LaptopWindows: () => null,
+  MoreVert: () => null,
   PhoneIphone: () => null,
-  Tablet: () => null
+  SwapVert: () => null
 }))
 
 describe('YourDevicesContent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockVaultData = {
-      devices: [
-        { id: 'ios-1', name: 'iOS 18', createdAt: 1 },
-        { id: 'android-1', name: 'Android Pixel', createdAt: 2 },
-        { id: 'unknown-1', createdAt: 3 }
-      ]
+    mockExtensionState = {
+      isBrowserExtensionEnabled: false,
+      toggleBrowserExtension: mockToggleBrowserExtension
     }
   })
 
-  it('renders devices and normalized display names', () => {
+  it('renders the page heading', () => {
     render(<YourDevicesContent />)
 
     expect(
       screen.getByRole('heading', { name: 'Your Devices' })
     ).toBeInTheDocument()
-    expect(screen.getByTestId('settings-card-your-devices')).toBeInTheDocument()
-
-    expect(screen.getByText('iPhone')).toBeInTheDocument()
-    expect(screen.getByText('Android')).toBeInTheDocument()
-    expect(screen.getByText('Unknown Device')).toBeInTheDocument()
-    expect(screen.getAllByText('Paired on 10 Jan 2026')).toHaveLength(3)
   })
 
-  it('opens add-device modal when button is clicked', () => {
+  it('shows empty state when the browser extension is disabled', () => {
     render(<YourDevicesContent />)
 
-    fireEvent.click(screen.getByTestId('settings-add-device-button'))
+    expect(screen.getByText('Browser Extension')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Create a unique pairing code to link your PearPass extension and enable autofill.'
+      )
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Generate Pair Code for Browser Extension')
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByTestId('settings-device-item-browser')
+    ).not.toBeInTheDocument()
+  })
 
-    expect(mockSetModal).toHaveBeenCalledTimes(1)
+  it('calls toggleBrowserExtension(true) when generate-pair-code button is clicked', () => {
+    render(<YourDevicesContent />)
+
+    fireEvent.click(
+      screen.getByText('Generate Pair Code for Browser Extension')
+    )
+
+    expect(mockToggleBrowserExtension).toHaveBeenCalledTimes(1)
+    expect(mockToggleBrowserExtension).toHaveBeenCalledWith(true)
+  })
+
+  it('shows browser device row when the extension is enabled', () => {
+    mockExtensionState = {
+      isBrowserExtensionEnabled: true,
+      toggleBrowserExtension: mockToggleBrowserExtension
+    }
+
+    render(<YourDevicesContent />)
+
+    expect(
+      screen.getByTestId('settings-device-item-browser')
+    ).toBeInTheDocument()
+    expect(screen.getByText('Browser')).toBeInTheDocument()
+    expect(
+      screen.queryByText('Generate Pair Code for Browser Extension')
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows the extension actions button when the extension is enabled', () => {
+    mockExtensionState = {
+      isBrowserExtensionEnabled: true,
+      toggleBrowserExtension: mockToggleBrowserExtension
+    }
+
+    render(<YourDevicesContent />)
+
+    expect(
+      screen.getByTestId('settings-browser-extension-action')
+    ).toBeInTheDocument()
+  })
+
+  it('calls toggleBrowserExtension(false) when unpair is clicked', () => {
+    mockExtensionState = {
+      isBrowserExtensionEnabled: true,
+      toggleBrowserExtension: mockToggleBrowserExtension
+    }
+
+    render(<YourDevicesContent />)
+
+    fireEvent.click(screen.getByText('Unpair Browser extension'))
+
+    expect(mockToggleBrowserExtension).toHaveBeenCalledTimes(1)
+    expect(mockToggleBrowserExtension).toHaveBeenCalledWith(false)
   })
 })

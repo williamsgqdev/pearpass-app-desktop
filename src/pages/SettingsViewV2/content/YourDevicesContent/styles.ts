@@ -31,15 +31,14 @@ export const createStyles = (colors: ThemeColors) => ({
 
   list: {
     display: 'flex' as const,
-    flexDirection: 'column' as const,
-
+    flexDirection: 'column' as const
   },
 
   footer: {
     display: 'flex' as const,
     justifyContent: 'flex-start' as const,
     padding: `${rawTokens.spacing4}px`,
-    borderTop: `1px solid ${colors.colorBorderPrimary}`,
+    borderTop: `1px solid ${colors.colorBorderPrimary}`
   },
 
   listItemBorder: {
@@ -57,4 +56,23 @@ export const createStyles = (colors: ThemeColors) => ({
     flexShrink: 0
   },
 
+  emptyBrowserStateWrap: {
+    display: 'flex' as const,
+    flexDirection: 'column' as const,
+    alignItems: 'flex-start' as const
+  },
+
+  emptyStateCaptions: {
+    display: 'flex' as const,
+    flexDirection: 'column' as const,
+    gap: `${rawTokens.spacing6}px`,
+    padding: `${rawTokens.spacing12}px`,
+    paddingBottom: `${rawTokens.spacing4}px`
+  },
+
+  emptyStateFooter: {
+    display: 'flex' as const,
+    justifyContent: 'flex-start' as const,
+    padding: `${rawTokens.spacing4}px`
+  }
 })

@@ -13,6 +13,13 @@ declare module '@tetherto/pearpass-lib-vault' {
     id: string
     name: string
     createdAt?: string
+    devices?: VaultDevice[]
+  }
+
+  export interface VaultDevice {
+    id: string
+    name: string
+    createdAt?: string
   }
 
   export interface UseVaultsResult {

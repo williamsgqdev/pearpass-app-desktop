@@ -12,15 +12,22 @@ import {
 } from '@tetherto/pearpass-lib-ui-kit'
 import {
   Add,
+  Devices,
   Edit,
   LockOutlined,
   MoreVert,
-  PersonAdd,
+  PersonAdd
 } from '@tetherto/pearpass-lib-ui-kit/icons'
-import { useRecords, useVault, useVaults, type Vault } from '@tetherto/pearpass-lib-vault'
+import {
+  useRecords,
+  useVault,
+  useVaults,
+  type Vault
+} from '@tetherto/pearpass-lib-vault'
 
 import { AddDeviceModalContentV2 } from '../../../../containers/Modal/AddDeviceModalContentV2/AddDeviceModalContentV2'
 import { CreateOrEditVaultModalContentV2 } from '../../../../containers/Modal/CreateOrEditVaultModalContentV2/CreateOrEditVaultModalContentV2'
+import { SeeDevicesModalContent } from '../../../../containers/Modal/SeeDevicesModalContent'
 import { useModal } from '../../../../context/ModalContext'
 import { useTranslation } from '../../../../hooks/useTranslation'
 import { sortByName } from '../../../../utils/sortByName'
@@ -55,9 +62,12 @@ export const YourVaultsContent = () => {
     return sortByName(allVaults.filter((v) => v.id !== vault.id))
   }, [allVaults, vault])
 
-
   const openAddDeviceModal = useCallback(() => {
     setModal(<AddDeviceModalContentV2 />)
+  }, [setModal])
+
+  const openDevicesModal = useCallback(() => {
+    setModal(<SeeDevicesModalContent />)
   }, [setModal])
 
   const openCreateModal = useCallback(() => {
@@ -83,11 +93,15 @@ export const YourVaultsContent = () => {
     [closeModal, setModal]
   )
 
-  const currentMeta = t(
-    '{count, plural, one {# item} other {# items}}',
-    { count: itemCount }
-  )
+  const ItemCount = t('{count, plural, one {# Item} other {# Items}}', {
+    count: itemCount
+  })
 
+  const DevicesMeta = vault?.devices?.length
+    ? t('{count, plural, one {# Device} other {# Devices}}', {
+        count: vault?.devices?.length ?? 0
+      })
+    : t('Private')
 
   if (!vault) {
     return null
@@ -97,9 +111,11 @@ export const YourVaultsContent = () => {
     <div style={styles.root} data-testid="settings-card-your-vault">
       <div style={styles.header}>
         <PageHeader
-          as='h1'
+          as="h1"
           title={t('Your Vaults')}
-          subtitle={t('Manage your vaults, control access permissions, and take protective measures if needed.')}
+          subtitle={t(
+            'Manage your vaults, control access permissions, and take protective measures if needed.'
+          )}
         />
       </div>
 
@@ -109,13 +125,18 @@ export const YourVaultsContent = () => {
         </Text>
         <div style={styles.cardList}>
           <ListItem
+            subtitleLayout="horizontal"
             testID="settings-vault-item"
             selectable={false}
             title={vault.name}
-            subtitle={currentMeta}
+            subtitle={{ primary: ItemCount, secondary: DevicesMeta }}
             icon={
               <div style={styles.iconWrap}>
-                <LockOutlined color={theme.colors.colorPrimary} width={16} height={16} />
+                <LockOutlined
+                  color={theme.colors.colorPrimary}
+                  width={16}
+                  height={16}
+                />
               </div>
             }
             rightElement={
@@ -159,6 +180,22 @@ export const YourVaultsContent = () => {
                     }
                     onClick={() => {
                       openEditModal(vault)
+                    }}
+                  />
+                  <NavbarListItem
+                    testID="settings-vault-devices-button"
+                    variant="secondary"
+                    size="small"
+                    label={t('See Devices')}
+                    icon={
+                      <Devices
+                        color={theme.colors.colorTextPrimary}
+                        width={24}
+                        height={24}
+                      />
+                    }
+                    onClick={() => {
+                      openDevicesModal()
                     }}
                   />
                 </ContextMenu>
