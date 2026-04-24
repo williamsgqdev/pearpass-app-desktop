@@ -1,26 +1,24 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
+  BLIND_PEER_TYPE,
+  BLIND_PEERS_LIMIT
+} from '@tetherto/pearpass-lib-constants'
+import {
   Button,
   InputField,
   MultiSlotInput,
+  PageHeader,
   Radio,
-  Text,
-  Title,
   ToggleSwitch,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
 import { Add, Close } from '@tetherto/pearpass-lib-ui-kit/icons'
 import { useBlindMirrors } from '@tetherto/pearpass-lib-vault'
-import {
-  BLIND_PEER_TYPE,
-  BLIND_PEERS_LIMIT
-} from '@tetherto/pearpass-lib-constants'
 import { useLoadingContext } from '../../../../context/LoadingContext'
 import { useToast } from '../../../../context/ToastContext'
 import { useTranslation } from '../../../../hooks/useTranslation'
 import { createStyles } from './styles'
-
 
 const TEST_IDS = {
   settingsCardBlindPeering: 'settings-card-blind-peering',
@@ -37,9 +35,7 @@ function getMirrorsSnapshotKey(
   if (data.length === 0) {
     return ''
   }
-  return data
-    .map((m) => `${m.isDefault ? '1' : '0'}:${m.key}`)
-    .join('\u001f')
+  return data.map((m) => `${m.isDefault ? '1' : '0'}:${m.key}`).join('\u001f')
 }
 
 export const BlindPeersContent = () => {
@@ -81,9 +77,7 @@ export const BlindPeersContent = () => {
     }
     const data = blindMirrorsData
     setPeerType(
-      data[0].isDefault
-        ? BLIND_PEER_TYPE.DEFAULT
-        : BLIND_PEER_TYPE.PERSONAL
+      data[0].isDefault ? BLIND_PEER_TYPE.DEFAULT : BLIND_PEER_TYPE.PERSONAL
     )
     if (!data[0].isDefault) {
       setPeerKeys(
@@ -200,10 +194,7 @@ export const BlindPeersContent = () => {
         return
       }
       setPeerType(BLIND_PEER_TYPE.PERSONAL)
-      if (
-        blindMirrorsData.length === 0 ||
-        blindMirrorsData[0].isDefault
-      ) {
+      if (blindMirrorsData.length === 0 || blindMirrorsData[0].isDefault) {
         setPeerKeys([''])
       }
     },
@@ -236,7 +227,10 @@ export const BlindPeersContent = () => {
   const { savedPeerType, savedKeys } = useMemo(() => {
     if (!blindMirrorsData.length) {
       return {
-        savedPeerType: null as typeof BLIND_PEER_TYPE.DEFAULT | typeof BLIND_PEER_TYPE.PERSONAL | null,
+        savedPeerType: null as
+          | typeof BLIND_PEER_TYPE.DEFAULT
+          | typeof BLIND_PEER_TYPE.PERSONAL
+          | null,
         savedKeys: [] as string[]
       }
     }
@@ -247,9 +241,7 @@ export const BlindPeersContent = () => {
         : BLIND_PEER_TYPE.PERSONAL,
       savedKeys: first.isDefault
         ? []
-        : blindMirrorsData
-          .map((m: { key: string }) => m.key)
-          .filter(Boolean)
+        : blindMirrorsData.map((m: { key: string }) => m.key).filter(Boolean)
     }
   }, [blindMirrorsData])
 
@@ -270,13 +262,7 @@ export const BlindPeersContent = () => {
       return !keysEqual(trimmedPeerKeys, savedKeys)
     }
     return false
-  }, [
-    hasMirrors,
-    peerType,
-    savedPeerType,
-    savedKeys,
-    trimmedPeerKeys
-  ])
+  }, [hasMirrors, peerType, savedPeerType, savedKeys, trimmedPeerKeys])
 
   const saveDisabled = useMemo(() => {
     if (isSaving) {
@@ -298,10 +284,7 @@ export const BlindPeersContent = () => {
   }, [hasMirrors, isDirty, isDraft, isSaving, peerType, trimmedPeerKeys.length])
 
   const handleConfirm = useCallback(async () => {
-    if (
-      peerType === BLIND_PEER_TYPE.PERSONAL &&
-      trimmedPeerKeys.length === 0
-    ) {
+    if (peerType === BLIND_PEER_TYPE.PERSONAL && trimmedPeerKeys.length === 0) {
       setToast({ message: t('Add at least one blind peer code') })
       return
     }
@@ -310,10 +293,9 @@ export const BlindPeersContent = () => {
       trimmedPeerKeys.length > BLIND_PEERS_LIMIT
     ) {
       setToast({
-        message: t(
-          'You can add at most {count} blind peers',
-          { count: BLIND_PEERS_LIMIT }
-        )
+        message: t('You can add at most {count} blind peers', {
+          count: BLIND_PEERS_LIMIT
+        })
       })
       return
     }
@@ -369,19 +351,14 @@ export const BlindPeersContent = () => {
     [t]
   )
   return (
-    <div
-      data-testid={TEST_IDS.settingsCardBlindPeering}
-      style={styles.root}
-    >
-      <Title as="h1">{t('Blind Peering')}</Title>
-
-      <div>
-        <Text variant="label" color={colors.colorTextSecondary}>
-          {t(
-            'Sync your encrypted vault with other devices to improve availability and reliability. Peers only see encrypted data - they can’t access or read anything'
-          )}
-        </Text>
-      </div>
+    <div data-testid={TEST_IDS.settingsCardBlindPeering} style={styles.root}>
+      <PageHeader
+        as="h1"
+        title={t('Blind Peering')}
+        subtitle={t(
+          'Sync your encrypted vault with other devices to improve availability and reliability. Peers only see encrypted data - they can’t access or read anything'
+        )}
+      />
 
       <div style={styles.settingCard}>
         <div style={styles.toggleBlock}>

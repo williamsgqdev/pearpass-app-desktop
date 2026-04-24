@@ -4,10 +4,9 @@ import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import { Validator } from '@tetherto/pear-apps-utils-validator'
 import {
   Button,
+  PageHeader,
   PasswordField,
   Radio,
-  Text,
-  Title,
   ToggleSwitch,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
@@ -192,14 +191,13 @@ export const ExportItemsContent = () => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <Title as="h2">{t('Export')}</Title>
-        <Text as="p" variant="label" color={theme.colors.colorTextSecondary}>
-          {t(
-            'Download the data in the desired format and optionally protect the file with a password for securely backing up or transferring your data.'
-          )}
-        </Text>
-      </div>
+      <PageHeader
+        as="h1"
+        title={t('Export')}
+        subtitle={t(
+          'Download the data in the desired format and optionally protect the file with a password for securely backing up or transferring your data.'
+        )}
+      />
 
       <Radio
         options={radioOptions}

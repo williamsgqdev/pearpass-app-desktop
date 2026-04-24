@@ -1,12 +1,11 @@
-import { useState } from 'react'
-
-import { html } from 'htm/react'
+import React, { useState } from 'react'
 
 import { CopyIcon } from '../lib-react-components'
 import { useCopyToClipboard } from './useCopyToClipboard.electron'
 import { useTranslation } from './useTranslation'
 import { COPY_FEEDBACK_DISPLAY_TIME } from '../constants/timeConstants'
 import { ExtensionPairingModalContent } from '../containers/Modal/ExtensionPairingModalContent'
+import { ExtensionPairingModalContentV2 } from '../containers/Modal/ExtensionPairingModalContent/ExtensionPairingModalContentV2'
 import { useGlobalLoading } from '../context/LoadingContext.js'
 import { useModal } from '../context/ModalContext'
 import { useToast } from '../context/ToastContext'
@@ -28,6 +27,7 @@ import {
   resetIdentity
 } from '../services/security/appIdentity'
 import { clearAllSessions } from '../services/security/sessionStore.js'
+import { isV2 } from '../utils/designVersion'
 import {
   setupNativeMessaging,
   killNativeMessagingHostProcesses,
@@ -143,14 +143,22 @@ export const useConnectExtension = () => {
         .then(loadPairingInfo)
         .then(({ pairingToken, fingerprint, tokenCreationDate }) => {
           setModal(
-            html`<${ExtensionPairingModalContent}
-              onCopy=${() => copyToClipboard(pairingToken)}
-              pairingToken=${pairingToken}
-              loadingPairing=${isExtensionConnectionLoading}
-              copyFeedback=${copyFeedback}
-              tokenCreationDate=${tokenCreationDate}
-              fingerprint=${fingerprint}
-            />`,
+            isV2() ? (
+              <ExtensionPairingModalContentV2
+                onCopy={() => copyToClipboard(pairingToken)}
+                pairingToken={pairingToken}
+                loadingPairing={isExtensionConnectionLoading}
+              />
+            ) : (
+              <ExtensionPairingModalContent
+                onCopy={() => copyToClipboard(pairingToken)}
+                pairingToken={pairingToken}
+                loadingPairing={isExtensionConnectionLoading}
+                copyFeedback={copyFeedback}
+                tokenCreationDate={tokenCreationDate}
+                fingerprint={fingerprint}
+              />
+            ),
             { replace: true }
           )
         })

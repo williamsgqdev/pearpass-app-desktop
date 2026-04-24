@@ -13,10 +13,8 @@ import {
   AlertMessage,
   Button,
   Form,
-  PasswordField,
-  Text,
-  Title,
-  useTheme
+  PageHeader,
+  PasswordField
 } from '@tetherto/pearpass-lib-ui-kit'
 import {
   checkPasswordStrength,
@@ -37,7 +35,6 @@ const STRENGTH_MAP: Record<string, PasswordIndicatorVariant> = {
 export const MasterPasswordContent = () => {
   const { t } = useTranslation()
   const [isLoading, setIsLoading] = useState(false)
-  const { theme } = useTheme()
   const styles = createStyles()
 
   useGlobalLoading({ isLoading })
@@ -143,12 +140,11 @@ export const MasterPasswordContent = () => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <Title as="h2">{t('Master Password')}</Title>
-        <Text color={theme.colors.colorTextSecondary} as="p">
-          {t('Manage the password that protects your app.')}
-        </Text>
-      </div>
+      <PageHeader
+        title={t('Master Password')}
+        as="h1"
+        subtitle={t('Manage the password that protects your app.')}
+      />
 
       <Form onSubmit={handleSubmit(onSubmit)}>
         <div style={styles.fieldsWrapper}>

@@ -17,6 +17,13 @@ jest.mock('sodium-native', () => ({
   crypto_secretbox_NONCEBYTES: 24,
   crypto_secretbox_MACBYTES: 16
 }))
+jest.mock(
+  '../containers/Modal/ExtensionPairingModalContent/ExtensionPairingModalContentV2',
+  () => ({ ExtensionPairingModalContentV2: () => null })
+)
+jest.mock('../containers/Modal/ExtensionPairingModalContent', () => ({
+  ExtensionPairingModalContent: () => null
+}))
 
 import { act, renderHook, waitFor } from '@testing-library/react'
 

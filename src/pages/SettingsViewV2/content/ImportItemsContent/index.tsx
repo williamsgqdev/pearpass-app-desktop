@@ -18,6 +18,7 @@ import {
   Button,
   Link,
   ListItem,
+  PageHeader,
   PasswordField,
   Text,
   Title,
@@ -466,14 +467,13 @@ export const ImportItemsContent = () => {
     <div style={styles.container}>
       {state === 'default' && (
         <>
-          <div style={styles.header}>
-            <Title as="h2">{t('Import')}</Title>
-            <Text color={theme.colors.colorTextSecondary} as="p">
-              {t(
-                'To import data from another password manager, first access the password manager, export your data, and then upload the exported file into the designated field'
-              )}
-            </Text>
-          </div>
+          <PageHeader
+            as="h1"
+            title={t('Import Items')}
+            subtitle={t(
+              'Easily import your passwords and data from other password managers. Select your source, upload the exported file, and follow the prompts to get your data into PearPass.'
+            )}
+          />
 
           <div style={styles.listWrapper}>
             <Text color={theme.colors.colorTextSecondary} variant="caption">

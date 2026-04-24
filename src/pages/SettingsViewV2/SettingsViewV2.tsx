@@ -39,6 +39,7 @@ import {
   ImportItemsContent,
   LanguageContent,
   MasterPasswordContent,
+  YourDevicesContent,
   ReportAProblemContent
 } from './content'
 import { YourVaultsContent } from './content/YourVaultsContent'
@@ -82,12 +83,14 @@ const renderActiveContent = (
       return <YourVaultsContent />
     case SettingsItemKey.BlindPeering:
       return <BlindPeersContent />
+    case SettingsItemKey.YourDevices:
+      return <YourDevicesContent />
     case SettingsItemKey.ImportItems:
       return <ImportItemsContent />
     case SettingsItemKey.ExportItems:
       return <ExportItemsContent />
     case SettingsItemKey.ReportAProblem:
-      return <ReportAProblemContent currentVersion={currentVersion}/>
+      return <ReportAProblemContent currentVersion={currentVersion} />
     case SettingsItemKey.Language:
       return <LanguageContent />
     case SettingsItemKey.AppVersion:

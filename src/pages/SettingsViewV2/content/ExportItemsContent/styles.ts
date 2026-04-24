@@ -8,12 +8,6 @@ export const createStyles = (colors: ThemeColors) => ({
     gap: `${rawTokens.spacing24}px`
   },
 
-  header: {
-    display: 'flex' as const,
-    flexDirection: 'column' as const,
-    gap: `${rawTokens.spacing6}px`
-  },
-
   toggleCard: {
     border: `1px solid ${colors.colorBorderPrimary}`,
     borderRadius: `${rawTokens.radius8}px`,

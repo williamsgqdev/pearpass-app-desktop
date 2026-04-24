@@ -5,6 +5,7 @@ import { render, screen, fireEvent, act } from '@testing-library/react'
 
 import { AddDeviceModalContentV2 } from '../../../../containers/Modal/AddDeviceModalContentV2/AddDeviceModalContentV2'
 import { CreateOrEditVaultModalContentV2 } from '../../../../containers/Modal/CreateOrEditVaultModalContentV2/CreateOrEditVaultModalContentV2'
+import { SeeDevicesModalContent } from '../../../../containers/Modal/SeeDevicesModalContent'
 import { YourVaultsContent } from './index'
 
 const mockSetModal = jest.fn()
@@ -33,9 +34,7 @@ jest.mock('../../../../hooks/useTranslation', () => ({
   useTranslation: () => ({
     t: (str: string, values?: { count?: number }) => {
       if (values && 'count' in values && typeof values.count === 'number') {
-        return values.count === 1
-          ? '1 item'
-          : `${values.count} items`
+        return values.count === 1 ? '1 item' : `${values.count} items`
       }
       return str
     }
@@ -45,7 +44,11 @@ jest.mock('../../../../hooks/useTranslation', () => ({
 jest.mock('@tetherto/pearpass-lib-vault', () => ({
   useVault: () => ({ data: vaultState.current.data }),
   useVaults: () => ({ data: vaultState.all.data }),
-  useRecords: () => ({ data: vaultState.records.data })
+  useRecords: (_args?: unknown) => ({ data: vaultState.records.data })
+}))
+
+jest.mock('../../../../containers/Modal/SeeDevicesModalContent', () => ({
+  SeeDevicesModalContent: () => null
 }))
 
 jest.mock('./styles', () => ({
@@ -61,129 +64,131 @@ jest.mock('./styles', () => ({
 }))
 
 jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
-    useTheme: () => ({
-      theme: {
-        colors: {
-          colorTextSecondary: '#999',
-          colorTextPrimary: '#000',
-          colorPrimary: '#00f',
-          colorBorderPrimary: '#ccc'
-        }
+  useTheme: () => ({
+    theme: {
+      colors: {
+        colorTextSecondary: '#999',
+        colorTextPrimary: '#000',
+        colorPrimary: '#00f',
+        colorBorderPrimary: '#ccc'
       }
-    }),
-    Button: ({
-      children,
-      onClick,
-      'data-testid': dataTestid,
-      iconBefore: _i,
-      ...rest
-    }: {
-      children: React.ReactNode
-      onClick?: () => void
-      'data-testid'?: string
-      iconBefore?: React.ReactNode
-    } & React.ComponentProps<'button'>) => (
-      <button
-        type="button"
-        data-testid={dataTestid}
-        onClick={onClick}
-        {...rest}
-      >
-        {children}
-      </button>
-    ),
-    PageHeader: ({
-      title,
-      subtitle,
-      as: _a
-    }: {
-      title: string
-      subtitle?: React.ReactNode
-      as?: string
-    }) => (
-      <div data-testid="settings-your-vaults-page-header">
-        <h1>{title}</h1>
-        {subtitle != null ? <p>{subtitle}</p> : null}
-      </div>
-    ),
-    ContextMenu: ({
-      children,
-      testID,
-      menuWidth: _w,
-      trigger,
-      ..._rest
-    }: {
-      children: React.ReactNode
-      testID: string
-      menuWidth?: number
-      trigger: React.ReactNode
-      [key: string]: unknown
-    }) => (
-      <div data-testid={testID}>
-        {trigger}
-        <div data-testid="context-menu-children">{children}</div>
-      </div>
-    ),
-    ListItem: ({
-      testID,
-      title,
-      subtitle,
-      rightElement,
-      showDivider: _d,
-      dividerColor: _c,
-      icon: _ic,
-      ..._rest
-    }: {
-      testID: string
-      title: string
-      subtitle?: string
-      rightElement?: React.ReactNode
-      [key: string]: unknown
-    }) => (
+    }
+  }),
+  Button: ({
+    children,
+    onClick,
+    'data-testid': dataTestid,
+    iconBefore: _i,
+    ...rest
+  }: {
+    children: React.ReactNode
+    onClick?: () => void
+    'data-testid'?: string
+    iconBefore?: React.ReactNode
+  } & React.ComponentProps<'button'>) => (
+    <button type="button" data-testid={dataTestid} onClick={onClick} {...rest}>
+      {children}
+    </button>
+  ),
+  PageHeader: ({
+    title,
+    subtitle,
+    as: _a
+  }: {
+    title: string
+    subtitle?: React.ReactNode
+    as?: string
+  }) => (
+    <div data-testid="settings-your-vaults-page-header">
+      <h1>{title}</h1>
+      {subtitle != null ? <p>{subtitle}</p> : null}
+    </div>
+  ),
+  ContextMenu: ({
+    children,
+    testID,
+    menuWidth: _w,
+    trigger,
+    ..._rest
+  }: {
+    children: React.ReactNode
+    testID: string
+    menuWidth?: number
+    trigger: React.ReactNode
+    [key: string]: unknown
+  }) => (
+    <div data-testid={testID}>
+      {trigger}
+      <div data-testid="context-menu-children">{children}</div>
+    </div>
+  ),
+  ListItem: ({
+    testID,
+    title,
+    subtitle,
+    rightElement,
+    showDivider: _d,
+    dividerColor: _c,
+    icon: _ic,
+    ..._rest
+  }: {
+    testID: string
+    title: string
+    subtitle?: string | { primary?: string; secondary?: string }
+    rightElement?: React.ReactNode
+    [key: string]: unknown
+  }) => {
+    const subtitleText =
+      typeof subtitle === 'object' && subtitle !== null
+        ? [subtitle.primary, subtitle.secondary].filter(Boolean).join(' ')
+        : subtitle
+    return (
       <div data-testid={testID}>
         <span>{title}</span>
-        {subtitle ? <span>{subtitle}</span> : null}
+        {subtitleText ? <span>{subtitleText}</span> : null}
         {rightElement}
       </div>
-    ),
-    MultiSlotInput: ({
-      children,
-      testID
-    }: {
-      children: React.ReactNode
-      testID: string
-    }) => <div data-testid={testID}>{children}</div>,
-    NavbarListItem: (props: {
-      testID: string
-      label: string
-      onClick: () => void
-      [key: string]: unknown
-    }) => {
-      const { testID, label, onClick } = props
-      return (
-        <button data-testid={testID} type="button" onClick={onClick}>
-          {label}
-        </button>
-      )
-    },
-    Text: ({
-      children,
-      ..._rest
-    }: {
-      children: React.ReactNode
-      [key: string]: unknown
-    }) => <span>{children}</span>,
-    Title: ({
-      children,
-      as: Component = 'h2'
-    }: {
-      children: React.ReactNode
-      as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'div'
-    }) => <Component>{children}</Component>
+    )
+  },
+  MultiSlotInput: ({
+    children,
+    testID
+  }: {
+    children: React.ReactNode
+    testID: string
+  }) => <div data-testid={testID}>{children}</div>,
+  NavbarListItem: (props: {
+    testID: string
+    label: string
+    onClick: () => void
+    [key: string]: unknown
+  }) => {
+    const { testID, label, onClick } = props
+    return (
+      <button data-testid={testID} type="button" onClick={onClick}>
+        {label}
+      </button>
+    )
+  },
+  Text: ({
+    children,
+    ..._rest
+  }: {
+    children: React.ReactNode
+    [key: string]: unknown
+  }) => <span>{children}</span>,
+  Title: ({
+    children,
+    as: Component = 'h2'
+  }: {
+    children: React.ReactNode
+    as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'div'
+  }) => <Component>{children}</Component>
 }))
 
 jest.mock('@tetherto/pearpass-lib-ui-kit/icons', () => ({
   Add: () => null,
+  Devices: () => null,
   Edit: () => null,
   LockOutlined: () => null,
   MoreVert: () => null,
@@ -242,7 +247,6 @@ describe('YourVaultsContent', () => {
     render(<YourVaultsContent />)
 
     expect(screen.getByText('Other Vaults')).toBeInTheDocument()
-    expect(screen.getByTestId('settings-other-vaults-multislot')).toBeInTheDocument()
     expect(
       screen.getByTestId('settings-other-vault-Second Vault-0')
     ).toBeInTheDocument()
@@ -278,6 +282,23 @@ describe('YourVaultsContent', () => {
     expect(props.onSuccess).toBe(mockCloseModal)
   })
 
+  it('opens the see-devices modal when the devices button is used', async () => {
+    render(<YourVaultsContent />)
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('settings-vault-more-button'))
+    })
+
+    const devicesBtn = screen.getByTestId('settings-vault-devices-button')
+    await act(async () => {
+      fireEvent.click(devicesBtn)
+    })
+
+    expect(mockSetModal).toHaveBeenCalledTimes(1)
+    const el = mockSetModal.mock.calls[0][0] as React.ReactElement
+    expect(el.type).toBe(SeeDevicesModalContent)
+  })
+
   it('opens rename (edit) for the current vault from the context menu', async () => {
     render(<YourVaultsContent />)
 
@@ -291,7 +312,10 @@ describe('YourVaultsContent', () => {
       Record<string, unknown>
     >
     expect(el.type).toBe(CreateOrEditVaultModalContentV2)
-    const editProps = el.props as { vault: { id: string; name: string }; onClose: () => void }
+    const editProps = el.props as {
+      vault: { id: string; name: string }
+      onClose: () => void
+    }
     expect(editProps.vault).toEqual({
       id: 'vault-main',
       name: 'Main Vault'

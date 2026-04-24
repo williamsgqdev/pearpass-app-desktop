@@ -11,9 +11,7 @@ jest.mock('../../../../hooks/useTranslation', () => ({
   useTranslation: () => ({
     t: (str: string, values?: Record<string, unknown>) => {
       if (values && typeof str === 'string') {
-        return str.replace(/\{(\w+)\}/g, (_, k) =>
-          String(values[k] ?? '')
-        )
+        return str.replace(/\{(\w+)\}/g, (_, k) => String(values[k] ?? ''))
       }
       return str
     }
@@ -90,6 +88,7 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
   useTheme: () => mockTheme,
   Title: ({ children }: { children: React.ReactNode }) => <h1>{children}</h1>,
   Text: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  PageHeader: ({ title }: { title: React.ReactNode }) => <h1>{title}</h1>,
   ToggleSwitch: (props: {
     'data-testid'?: string
     checked?: boolean
@@ -105,9 +104,7 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
           role="switch"
           aria-checked={props.checked}
           disabled={props.disabled}
-          onClick={() =>
-            !props.disabled && props.onChange?.(!props.checked)
-          }
+          onClick={() => !props.disabled && props.onChange?.(!props.checked)}
         >
           {props.label}
         </button>
@@ -129,9 +126,7 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
           data-value={opt.value}
           aria-pressed={props.value === opt.value}
           disabled={props.disabled}
-          onClick={() =>
-            !props.disabled && props.onChange?.(opt.value)
-          }
+          onClick={() => !props.disabled && props.onChange?.(opt.value)}
         >
           {opt.label}
         </button>
@@ -206,7 +201,9 @@ describe('BlindPeersContent', () => {
     expect(
       screen.getByTestId('settings-card-blind-peering')
     ).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Blind Peering' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Blind Peering' })
+    ).toBeInTheDocument()
   })
 
   it('calls getBlindMirrors on mount', () => {
@@ -242,9 +239,7 @@ describe('BlindPeersContent', () => {
       screen.getByRole('switch', { name: 'Enable Blind Peering' })
     )
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Manual Blind Peers' })
-    )
+    fireEvent.click(screen.getByRole('button', { name: 'Manual Blind Peers' }))
 
     expect(
       screen.getByTestId('blind-peers-manual-multislot')
@@ -259,9 +254,7 @@ describe('BlindPeersContent', () => {
     fireEvent.click(
       screen.getByRole('switch', { name: 'Enable Blind Peering' })
     )
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Manual Blind Peers' })
-    )
+    fireEvent.click(screen.getByRole('button', { name: 'Manual Blind Peers' }))
 
     expect(screen.getByTestId('blind-peers-save-changes')).toBeDisabled()
   })
@@ -272,9 +265,7 @@ describe('BlindPeersContent', () => {
     fireEvent.click(
       screen.getByRole('switch', { name: 'Enable Blind Peering' })
     )
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Manual Blind Peers' })
-    )
+    fireEvent.click(screen.getByRole('button', { name: 'Manual Blind Peers' }))
 
     const input = screen.getByTestId('blind-peer-input-0')
     fireEvent.change(input, { target: { value: 'hello' } })
@@ -288,9 +279,7 @@ describe('BlindPeersContent', () => {
     fireEvent.click(
       screen.getByRole('switch', { name: 'Enable Blind Peering' })
     )
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Manual Blind Peers' })
-    )
+    fireEvent.click(screen.getByRole('button', { name: 'Manual Blind Peers' }))
 
     for (let i = 0; i < 4; i++) {
       fireEvent.click(screen.getByText('Add Another Peer'))
@@ -314,16 +303,12 @@ describe('BlindPeersContent', () => {
       ).toBeChecked()
     })
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Manual Blind Peers' })
-    )
+    fireEvent.click(screen.getByRole('button', { name: 'Manual Blind Peers' }))
 
     expect(screen.getByTestId('blind-peer-input-0')).toHaveValue('first')
     expect(screen.getByTestId('blind-peer-input-1')).toHaveValue('second')
 
-    fireEvent.click(
-      screen.getAllByRole('button', { name: 'Remove peer' })[1]
-    )
+    fireEvent.click(screen.getAllByRole('button', { name: 'Remove peer' })[1])
 
     await waitFor(() => {
       expect(screen.queryByTestId('blind-peer-input-1')).not.toBeInTheDocument()
