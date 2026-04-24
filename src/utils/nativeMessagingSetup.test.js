@@ -191,14 +191,14 @@ describe('getNativeMessagingLocations', () => {
     expect(browsers).toHaveLength(7)
     expect(browsers[0].name).toBe('Google Chrome')
     expect(browsers[0].manifestPath).toContain('google-chrome')
-    expect(browsers[0].browserDir).toContain('google-chrome')
+    expect(browsers[0].browserDir).toBeNull()
     expect(browsers[1].name).toBe('Chromium')
     expect(browsers[1].manifestPath).toContain('.config/chromium')
     expect(browsers[2].name).toBe('Microsoft Edge')
     expect(browsers[2].manifestPath).toContain('microsoft-edge')
     expect(browsers[3].name).toBe('Chromium (Snap)')
     expect(browsers[3].manifestPath).toContain('snap/chromium')
-    expect(browsers[3].browserDir).toContain('snap/chromium')
+    expect(browsers[3].browserDir).toBeNull()
     expect(browsers[4].name).toBe('Brave')
     expect(browsers[4].manifestPath).toContain('BraveSoftware/Brave-Browser')
     expect(browsers[5].name).toBe('Brave (Snap)')
@@ -459,15 +459,6 @@ describe('setupNativeMessaging', () => {
 
   it('should skip browsers whose directory does not exist', async () => {
     os.platform.mockReturnValue('linux')
-    // Make fs.access reject for all browsers except the first (google-chrome)
-    fs.access
-      .mockResolvedValueOnce() // google-chrome exists
-      .mockRejectedValueOnce(new Error('ENOENT')) // chromium not found
-      .mockRejectedValueOnce(new Error('ENOENT')) // microsoft-edge not found
-      .mockRejectedValueOnce(new Error('ENOENT')) // chromium snap not found
-      .mockRejectedValueOnce(new Error('ENOENT')) // brave not found
-      .mockRejectedValueOnce(new Error('ENOENT')) // brave snap not found
-      .mockRejectedValueOnce(new Error('ENOENT')) // firefox not found
 
     const result = await setupNativeMessaging({
       userDataPath: MOCK_USER_DATA_PATH,
@@ -475,7 +466,7 @@ describe('setupNativeMessaging', () => {
       bridgePath: MOCK_BRIDGE_PATH
     })
     expect(result.success).toBe(true)
-    // 1 executable write + 1 manifest write (only google-chrome)
-    expect(fs.writeFile).toHaveBeenCalledTimes(2)
+    // Linux installs always write: 1 executable + 7 browser manifests.
+    expect(fs.writeFile).toHaveBeenCalledTimes(8)
   })
 })

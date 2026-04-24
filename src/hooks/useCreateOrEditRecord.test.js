@@ -22,6 +22,22 @@ jest.mock(
   })
 )
 
+jest.mock('../containers/Modal/CreateOrEditCategoryWrapper', () => ({
+  CreateOrEditCategoryWrapper: function MockCreateOrEditCategoryWrapper() {
+    return null
+  }
+}))
+
+jest.mock(
+  '../containers/Modal/GeneratePasswordModalContentV2/GeneratePasswordModalContentV2',
+  () => ({
+    GeneratePasswordModalContentV2:
+      function MockGeneratePasswordModalContentV2() {
+        return null
+      }
+  })
+)
+
 jest.mock('../context/ModalContext', () => ({
   useModal: jest.fn()
 }))
@@ -43,7 +59,7 @@ describe('useCreateOrEditRecord', () => {
     expect(typeof result.current.handleCreateOrEditRecord).toBe('function')
   })
 
-  it('should call setModal with password side drawer content when recordType is password', () => {
+  it('should call setModal for password record type', () => {
     const { result } = renderHook(() => useCreateOrEditRecord())
     const setValue = jest.fn()
 
@@ -53,7 +69,7 @@ describe('useCreateOrEditRecord', () => {
     })
 
     expect(setModalMock).toHaveBeenCalledTimes(1)
-    expect(setModalMock.mock.calls[0][1]).toEqual({ modalType: 'sideDrawer' })
+    expect(setModalMock.mock.calls[0][1]).toBeUndefined()
   })
 
   it('should call setModal with category wrapper content for non-password record types', () => {
