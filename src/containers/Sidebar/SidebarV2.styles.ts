@@ -1,6 +1,8 @@
 import type { ThemeColors } from '@tetherto/pearpass-lib-ui-kit'
 import { rawTokens } from '@tetherto/pearpass-lib-ui-kit'
 
+import { HEADER_MIN_HEIGHT } from '../../constants/layout'
+
 export const SIDEBAR_WIDTH_EXPANDED = 250
 export const SIDEBAR_WIDTH_COLLAPSED = 57
 
@@ -42,7 +44,7 @@ export const createStyles = (colors: ThemeColors, isCollapsed: boolean) => ({
     alignItems: 'center' as const,
     gap: rawTokens.spacing8,
     width: '100%',
-    height: 44,
+    height: HEADER_MIN_HEIGHT,
     padding: rawTokens.spacing12,
     borderBottom: `1px solid ${colors.colorBorderPrimary}`,
     backgroundColor: colors.colorSurfacePrimary,

@@ -68,8 +68,17 @@ export const MultiSelectActionsBar = ({
   const styles = createStyles(theme.colors)
 
   const hasSelection = selectedCount > 0
+  const isMoveDisabled = !hasSelection || !canMove
+  const isFavoriteDisabled = !hasSelection
+  const isDeleteDisabled = !hasSelection
   const FavoriteIcon = allSelectedFavorited ? StarFilled : StarOutlined
-  const iconStyle = { color: theme.colors.colorTextPrimary }
+
+  const iconColor = (disabled: boolean) =>
+    disabled ? theme.colors.colorTextDisabled : theme.colors.colorTextPrimary
+
+  const moveIconStyle = { color: iconColor(isMoveDisabled) }
+  const favoriteIconStyle = { color: iconColor(isFavoriteDisabled) }
+  const deleteIconStyle = { color: iconColor(isDeleteDisabled) }
 
   const selectedLabel =
     selectedCount === 1
@@ -99,10 +108,10 @@ export const MultiSelectActionsBar = ({
             variant="tertiary"
             size="small"
             onClick={onMove}
-            disabled={!hasSelection || !canMove}
+            disabled={isMoveDisabled}
             data-testid="multi-select-move"
             aria-label={t('Move items')}
-            iconBefore={<DriveFileMoveOutlined style={iconStyle} />}
+            iconBefore={<DriveFileMoveOutlined style={moveIconStyle} />}
           />
         </HoverButton>
 
@@ -116,10 +125,10 @@ export const MultiSelectActionsBar = ({
             variant="tertiary"
             size="small"
             onClick={onToggleFavorite}
-            disabled={!hasSelection}
+            disabled={isFavoriteDisabled}
             data-testid="multi-select-favorite"
             aria-label={favoriteLabel}
-            iconBefore={<FavoriteIcon style={iconStyle} />}
+            iconBefore={<FavoriteIcon style={favoriteIconStyle} />}
           />
         </HoverButton>
 
@@ -129,10 +138,10 @@ export const MultiSelectActionsBar = ({
           variant="destructive"
           size="small"
           onClick={onDelete}
-          disabled={!hasSelection}
+          disabled={isDeleteDisabled}
           data-testid="multi-select-delete"
           aria-label={t('Delete items')}
-          iconBefore={<TrashOutlined />}
+          iconBefore={<TrashOutlined style={deleteIconStyle} />}
         />
       </div>
     </div>

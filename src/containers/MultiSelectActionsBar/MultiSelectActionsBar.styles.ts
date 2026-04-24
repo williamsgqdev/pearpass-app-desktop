@@ -1,7 +1,7 @@
 import type { ThemeColors } from '@tetherto/pearpass-lib-ui-kit'
 import { rawTokens } from '@tetherto/pearpass-lib-ui-kit'
 
-const BAR_MIN_HEIGHT = 44
+import { HEADER_MIN_HEIGHT } from '../../constants/layout'
 
 export const createStyles = (colors: ThemeColors) => ({
   container: {
@@ -9,7 +9,7 @@ export const createStyles = (colors: ThemeColors) => ({
     alignItems: 'center' as const,
     justifyContent: 'space-between' as const,
     gap: `${rawTokens.spacing8}px`,
-    minHeight: `${BAR_MIN_HEIGHT}px`,
+    height: `${HEADER_MIN_HEIGHT}px`,
     paddingInline: `${rawTokens.spacing12}px`,
     borderBottom: `1px solid ${colors.colorBorderPrimary}`,
     backgroundColor: colors.colorSurfacePrimary,
