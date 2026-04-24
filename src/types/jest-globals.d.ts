@@ -47,4 +47,9 @@ declare function expect<T = unknown>(actual: T): Matchers<void>
 
 declare namespace expect {
   function arrayContaining<T = unknown>(items: T[]): T[]
+  function objectContaining<T = Record<string, unknown>>(object: T): T
+  function stringContaining(value: string): string
+  function stringMatching(value: string | RegExp): string
+  function any(constructor: unknown): unknown
+  function anything(): unknown
 }
