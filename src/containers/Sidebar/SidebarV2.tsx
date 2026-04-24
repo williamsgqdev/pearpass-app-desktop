@@ -241,7 +241,8 @@ export const SidebarV2 = () => {
     <aside style={styles.wrapper} data-testid="sidebar-v2">
       {renderVaultHeader()}
 
-      <div style={styles.scrollArea}>
+      <div style={styles.scrollContainer}>
+        <div style={styles.scrollArea}>
         {isVaultSelectorOpen && (
           <VaultSelector onClose={() => setIsVaultSelectorOpen(false)} />
         )}
@@ -379,6 +380,8 @@ export const SidebarV2 = () => {
         </div>
           </>
         )}
+        </div>
+        <div style={styles.fadeGradient} aria-hidden="true" />
       </div>
 
       {AUTHENTICATOR_ENABLED && (

@@ -1,7 +1,7 @@
 import type { ThemeColors } from '@tetherto/pearpass-lib-ui-kit'
 import { rawTokens } from '@tetherto/pearpass-lib-ui-kit'
 
-import { HEADER_MIN_HEIGHT } from '../../constants/layout'
+import { FADE_GRADIENT_HEIGHT, HEADER_MIN_HEIGHT } from '../../constants/layout'
 
 export const SIDEBAR_WIDTH_EXPANDED = 250
 export const SIDEBAR_WIDTH_COLLAPSED = 57
@@ -100,15 +100,35 @@ export const createStyles = (colors: ThemeColors, isCollapsed: boolean) => ({
     transition: 'translate 150ms ease'
   },
 
+  scrollContainer: {
+    position: 'relative' as const,
+    display: 'flex' as const,
+    flexDirection: 'column' as const,
+    flex: 1,
+    minHeight: 0
+  },
+
   scrollArea: {
     display: 'flex' as const,
     flexDirection: 'column' as const,
     flex: 1,
     minHeight: 0,
     gap: rawTokens.spacing8,
-    padding: rawTokens.spacing12,
+    paddingInline: rawTokens.spacing12,
+    paddingTop: rawTokens.spacing12,
+    paddingBottom: FADE_GRADIENT_HEIGHT,
     overflowY: 'auto' as const,
     overflowX: 'hidden' as const
+  },
+
+  fadeGradient: {
+    position: 'absolute' as const,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: FADE_GRADIENT_HEIGHT,
+    pointerEvents: 'none' as const,
+    background: `linear-gradient(180deg, ${colors.colorSurfacePrimary}00 0%, ${colors.colorSurfacePrimary} 100%)`
   },
 
   sectionList: {
