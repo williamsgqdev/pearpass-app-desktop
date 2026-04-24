@@ -46,6 +46,12 @@ jest.mock('@lingui/react', () => ({
   })
 }))
 
+jest.mock('./useCreateOrEditRecord', () => ({
+  useCreateOrEditRecord: () => ({
+    handleCreateOrEditRecord: jest.fn()
+  })
+}))
+
 describe('useRecordActionItems', () => {
   const mockRecord = { id: '123', isFavorite: false }
   const mockOnSelect = jest.fn()
@@ -79,11 +85,12 @@ describe('useRecordActionItems', () => {
       })
     )
 
-    expect(result.current.actions).toHaveLength(4)
+    expect(result.current.actions).toHaveLength(5)
     expect(result.current.actions[0].type).toBe('select')
-    expect(result.current.actions[1].type).toBe('favorite')
-    expect(result.current.actions[2].type).toBe('move')
-    expect(result.current.actions[3].type).toBe('delete')
+    expect(result.current.actions[1].type).toBe('edit')
+    expect(result.current.actions[2].type).toBe('favorite')
+    expect(result.current.actions[3].type).toBe('move')
+    expect(result.current.actions[4].type).toBe('delete')
   })
 
   test('filters actions based on excludeTypes', () => {
@@ -96,9 +103,10 @@ describe('useRecordActionItems', () => {
       })
     )
 
-    expect(result.current.actions).toHaveLength(2)
+    expect(result.current.actions).toHaveLength(3)
     expect(result.current.actions[0].type).toBe('select')
-    expect(result.current.actions[1].type).toBe('favorite')
+    expect(result.current.actions[1].type).toBe('edit')
+    expect(result.current.actions[2].type).toBe('favorite')
   })
 
   test('handles select action', () => {
@@ -124,7 +132,10 @@ describe('useRecordActionItems', () => {
       })
     )
 
-    result.current.actions[1].click()
+    const favoriteAction = result.current.actions.find(
+      (action) => action.type === 'favorite'
+    )
+    favoriteAction.click()
     expect(mockUpdateFavoriteState).toHaveBeenCalledWith([mockRecord.id], true)
     expect(mockOnClose).toHaveBeenCalled()
   })
@@ -138,7 +149,10 @@ describe('useRecordActionItems', () => {
       })
     )
 
-    result.current.actions[2].click()
+    const moveAction = result.current.actions.find(
+      (action) => action.type === 'move'
+    )
+    moveAction.click()
     expect(mockSetModal).toHaveBeenCalled()
     expect(mockOnClose).toHaveBeenCalled()
   })
@@ -152,7 +166,10 @@ describe('useRecordActionItems', () => {
       })
     )
 
-    result.current.actions[3].click()
+    const deleteAction = result.current.actions.find(
+      (action) => action.type === 'delete'
+    )
+    deleteAction.click()
     expect(mockSetModal).toHaveBeenCalled()
     expect(mockOnClose).toHaveBeenCalled()
   })
@@ -172,7 +189,10 @@ describe('useRecordActionItems', () => {
       })
     )
 
-    result.current.actions[3].click()
+    const deleteAction = result.current.actions.find(
+      (action) => action.type === 'delete'
+    )
+    deleteAction.click()
 
     const confirmationAction =
       mockSetModal.mock.calls[0][0].props.secondaryAction

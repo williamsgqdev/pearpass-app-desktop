@@ -6,19 +6,27 @@ exports[`Toasts Component renders correctly with toasts 1`] = `
     data-testid="toast-stack"
   >
     <div
-      data-testid="toast-container"
+      data-testid="snackbar"
     >
       <div
-        data-testid="mock-icon"
+        data-testid="snackbar-icon"
       >
-        Icon
+        <div
+          data-testid="mock-icon"
+        >
+          Icon
+        </div>
       </div>
-      Success message
+      <span>
+        Success message
+      </span>
     </div>
     <div
-      data-testid="toast-container"
+      data-testid="snackbar"
     >
-      Error message
+      <span>
+        Error message
+      </span>
     </div>
   </div>
 </div>

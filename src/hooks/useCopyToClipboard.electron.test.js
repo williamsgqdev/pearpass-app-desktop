@@ -9,6 +9,11 @@ jest.mock('../utils/logger', () => ({
     error: jest.fn()
   }
 }))
+jest.mock('./useTranslation', () => ({
+  useTranslation: () => ({
+    t: (value) => value
+  })
+}))
 jest.mock('@tetherto/pearpass-lib-constants', () => ({
   CLIPBOARD_CLEAR_TIMEOUT: 1000
 }))

@@ -2,7 +2,6 @@ import React from 'react'
 
 import { render } from '@testing-library/react'
 import { ThemeProvider } from '@tetherto/pearpass-lib-ui-theme-provider'
-import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
 
 import { Toasts } from './index'
 import '@testing-library/jest-dom'
@@ -12,6 +11,17 @@ jest.mock('./styles', () => ({
     <div data-testid="toast-container">{children}</div>
   ),
   ToastStack: ({ children }) => <div data-testid="toast-stack">{children}</div>
+}))
+
+const mockSnackbar = jest.fn(({ text, icon }) => (
+  <div data-testid="snackbar">
+    {icon ? <div data-testid="snackbar-icon">{icon}</div> : null}
+    <span>{text}</span>
+  </div>
+))
+
+jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
+  Snackbar: (props) => mockSnackbar(props)
 }))
 
 describe('Toasts Component', () => {
@@ -34,14 +44,24 @@ describe('Toasts Component', () => {
     )
 
     expect(getByTestId('toast-stack')).toBeInTheDocument()
-    expect(getAllByTestId('toast-container')).toHaveLength(2)
+    expect(getAllByTestId('snackbar')).toHaveLength(2)
     expect(getByText('Success message')).toBeInTheDocument()
     expect(getByText('Error message')).toBeInTheDocument()
     expect(getByTestId('mock-icon')).toBeInTheDocument()
-    // htm/react passes a second undefined argument
-    expect(mockIcon).toHaveBeenCalledWith(
-      { color: colors.black.mode1 },
-      undefined
+    expect(mockSnackbar).toHaveBeenCalledTimes(2)
+    expect(mockSnackbar).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        text: 'Success message',
+        icon: expect.anything()
+      })
+    )
+    expect(mockSnackbar).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        text: 'Error message',
+        icon: undefined
+      })
     )
     expect(container).toMatchSnapshot()
   })
@@ -54,6 +74,7 @@ describe('Toasts Component', () => {
     )
 
     expect(getByTestId('toast-stack')).toBeInTheDocument()
+    expect(mockSnackbar).not.toHaveBeenCalled()
   })
 
   test('renders correctly with undefined toasts', () => {
@@ -64,9 +85,10 @@ describe('Toasts Component', () => {
     )
 
     expect(getByTestId('toast-stack')).toBeInTheDocument()
+    expect(mockSnackbar).not.toHaveBeenCalled()
   })
 
-  test('passes correct color to icon', () => {
+  test('passes icon through to Snackbar', () => {
     const toasts = [{ message: 'Test message', icon: mockIcon }]
 
     render(
@@ -75,9 +97,11 @@ describe('Toasts Component', () => {
       </ThemeProvider>
     )
 
-    expect(mockIcon).toHaveBeenCalledWith(
-      { color: colors.black.mode1 },
-      undefined
+    expect(mockSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: 'Test message',
+        icon: expect.anything()
+      })
     )
   })
 })

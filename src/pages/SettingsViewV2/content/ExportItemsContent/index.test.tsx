@@ -40,8 +40,8 @@ jest.mock('@tetherto/pearpass-lib-vault', () => ({
   listRecords: jest.fn(() => Promise.resolve([{ id: 'record-1' }]))
 }))
 
-const mockExportJson = jest.fn(() => Promise.resolve())
-const mockExportCsv = jest.fn(() => Promise.resolve())
+const mockExportJson = jest.fn((..._args: unknown[]) => Promise.resolve())
+const mockExportCsv = jest.fn((..._args: unknown[]) => Promise.resolve())
 
 jest.mock('../../../SettingsView/ExportTab/utils/exportJsonPerVault', () => ({
   handleExportJsonPerVaultTest: (...args: unknown[]) => mockExportJson(...args)
@@ -194,7 +194,7 @@ describe('ExportItemsContent', () => {
 
     expect(mockSetModal).toHaveBeenCalledTimes(1)
 
-    const modalElement = mockSetModal.mock.calls[0][0]
+    const modalElement = mockSetModal.mock.calls[0][0] as React.ReactElement
     render(modalElement)
 
     fireEvent.click(screen.getByTestId('auth-confirm'))
