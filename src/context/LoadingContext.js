@@ -1,4 +1,10 @@
-import { createContext, useState, useContext, useEffect } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState
+} from 'react'
 
 import { html } from 'htm/react'
 
@@ -12,7 +18,17 @@ const LoadingContext = createContext()
  * }} props
  */
 export const LoadingProvider = ({ children }) => {
-  const [isLoading, setIsLoading] = useState(false)
+  // Ref-counted so concurrent callers don't stomp each other's loading state.
+  const [count, setCount] = useState(0)
+
+  const setIsLoading = useCallback((isLoading) => {
+    setCount((prev) => {
+      if (isLoading) return prev + 1
+      return prev > 0 ? prev - 1 : 0
+    })
+  }, [])
+
+  const isLoading = count > 0
 
   return html`
     <${LoadingContext.Provider} value=${{ isLoading, setIsLoading }}>
@@ -38,14 +54,8 @@ export const useGlobalLoading = ({ isLoading }) => {
   const { setIsLoading } = useLoadingContext()
 
   useEffect(() => {
-    if (typeof isLoading !== 'boolean') {
-      return
-    }
-
-    setIsLoading(isLoading)
-
-    return () => {
-      setIsLoading(false)
-    }
-  }, [isLoading])
+    if (isLoading !== true) return
+    setIsLoading(true)
+    return () => setIsLoading(false)
+  }, [isLoading, setIsLoading])
 }

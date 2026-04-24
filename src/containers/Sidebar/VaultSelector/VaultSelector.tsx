@@ -99,9 +99,6 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps) => {
               setIsLoading(true)
               try {
                 await refetchVault(vault.id, { password })
-                // TODO: MainView's useGlobalLoading prematurely changes our loading to
-                //  false after vault refetch. Switch to reliable local loading.
-                setIsLoading(true)
                 closeModal()
                 await onSuccess()
               } finally {
@@ -114,9 +111,6 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps) => {
       }
 
       await refetchVault(vault.id)
-      // TODO: MainView's useGlobalLoading prematurely changes our loading to
-      //  false after vault refetch. Switch to reliable local loading.
-      setIsLoading(true)
       await onSuccess()
     } finally {
       setIsLoading(false)

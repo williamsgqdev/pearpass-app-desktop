@@ -77,6 +77,60 @@ describe('LoadingContext', () => {
 
       expect(contextValue.isLoading).toBe(true)
     })
+
+    it('should stay loading until every acquire is released', () => {
+      let contextValue
+
+      const TestComponent = () => {
+        contextValue = useLoadingContext()
+        return null
+      }
+
+      render(
+        <LoadingProvider>
+          <TestComponent />
+        </LoadingProvider>
+      )
+
+      act(() => {
+        contextValue.setIsLoading(true)
+        contextValue.setIsLoading(true)
+      })
+      expect(contextValue.isLoading).toBe(true)
+
+      act(() => {
+        contextValue.setIsLoading(false)
+      })
+      expect(contextValue.isLoading).toBe(true)
+
+      act(() => {
+        contextValue.setIsLoading(false)
+      })
+      expect(contextValue.isLoading).toBe(false)
+    })
+
+    it('should clamp release at zero so stray falses do not underflow', () => {
+      let contextValue
+
+      const TestComponent = () => {
+        contextValue = useLoadingContext()
+        return null
+      }
+
+      render(
+        <LoadingProvider>
+          <TestComponent />
+        </LoadingProvider>
+      )
+
+      act(() => {
+        contextValue.setIsLoading(false)
+        contextValue.setIsLoading(false)
+        contextValue.setIsLoading(true)
+      })
+
+      expect(contextValue.isLoading).toBe(true)
+    })
   })
 
   describe('useGlobalLoading', () => {
@@ -122,6 +176,40 @@ describe('LoadingContext', () => {
       )
 
       expect(contextValue.isLoading).toBe(false)
+    })
+
+    it('should not release a concurrent imperative acquire when its own isLoading flips to false', () => {
+      let contextValue
+
+      const TestComponent = ({ isLoading }) => {
+        useGlobalLoading({ isLoading })
+        contextValue = useLoadingContext()
+        return null
+      }
+
+      const { rerender } = render(
+        <LoadingProvider>
+          <TestComponent isLoading={false} />
+        </LoadingProvider>
+      )
+
+      act(() => {
+        contextValue.setIsLoading(true)
+      })
+      expect(contextValue.isLoading).toBe(true)
+
+      rerender(
+        <LoadingProvider>
+          <TestComponent isLoading={true} />
+        </LoadingProvider>
+      )
+      rerender(
+        <LoadingProvider>
+          <TestComponent isLoading={false} />
+        </LoadingProvider>
+      )
+
+      expect(contextValue.isLoading).toBe(true)
     })
   })
 })
