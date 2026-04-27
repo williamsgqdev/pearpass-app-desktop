@@ -10,6 +10,7 @@ import { useTranslation } from '../../hooks/useTranslation'
 import { PlusIcon, StarIcon } from '../../lib-react-components'
 import { isV2 } from '../../utils/designVersion'
 import { FAVORITES_FOLDER_ID } from '../../utils/isFavorite'
+import { sortByName } from '../../utils/sortByName'
 import { MenuDropdown } from '../MenuDropdown'
 import { DropDownItem } from '../MenuDropdown/styles'
 
@@ -35,9 +36,9 @@ export const FolderDropdown = ({ selectedFolder, onFolderSelect, testId }) => {
   const { setModal, closeModal } = useModal()
 
   const customFolders = React.useMemo(() => {
-    const mappedFolders = Object.values(folders?.customFolders ?? {}).map(
-      (folder) => ({ name: folder.name })
-    )
+    const mappedFolders = sortByName(
+      Object.values(folders?.customFolders ?? {})
+    ).map((folder) => ({ name: folder.name }))
 
     if (selectedFolder) {
       mappedFolders.unshift({ name: t('No Folder'), type: NO_FOLDER })

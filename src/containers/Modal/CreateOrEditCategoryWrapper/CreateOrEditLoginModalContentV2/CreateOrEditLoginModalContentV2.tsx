@@ -43,6 +43,7 @@ import { addHttps } from '../../../../utils/addHttps'
 import { formatPasskeyDate } from '../../../../utils/formatPasskeyDate'
 import { getFilteredAttachmentsById } from '../../../../utils/getFilteredAttachmentsById'
 import { handleFileSelect } from '../../../../utils/handleFileSelect'
+import { sortByName } from '../../../../utils/sortByName'
 import { CreateFolderModalContentV2 } from '../../CreateFolderModalContentV2/CreateFolderModalContentV2'
 import { UploadFilesModalContentV2 } from '../../UploadFilesModalContentV2'
 
@@ -103,8 +104,10 @@ export const CreateOrEditLoginModalContentV2 = ({
   const { data: folders } = useFolders()
 
   const folderOptions = useMemo(() => {
-    return Object.values(
-      (folders?.customFolders ?? {}) as Record<string, { name: string }>
+    return sortByName(
+      Object.values(
+        (folders?.customFolders ?? {}) as Record<string, { name: string }>
+      )
     ).map((f) => f.name)
   }, [folders])
 
