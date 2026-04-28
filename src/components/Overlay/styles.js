@@ -2,6 +2,11 @@ import styled from 'styled-components'
 
 import { BASE_TRANSITION_DURATION } from '../../constants/transitions'
 
+// Modal scrim — brand "near-black" at 72% (same base RGB as the kit's `shadowMenu`).
+// TODO: replace with a kit token (e.g. `colorOverlayScrim`) once one exists.
+const SCRIM_DEFAULT = 'rgba(8, 10, 5, 0.72)'
+const SCRIM_BLUR = 'rgba(0, 0, 0, 0.5)'
+
 export const OverlayComponent = styled.div.withConfig({
   shouldForwardProp: (prop) => !['isShown'].includes(prop)
 })`
@@ -14,11 +19,11 @@ export const OverlayComponent = styled.div.withConfig({
   transition: opacity ${BASE_TRANSITION_DURATION}ms ease-in-out;
   background: ${({ type }) => {
     if (type === 'default') {
-      return 'rgba(8, 10, 5, 0.72)'
+      return SCRIM_DEFAULT
     }
 
     if (type === 'blur') {
-      return 'rgba(0, 0, 0, 0.5)'
+      return SCRIM_BLUR
     }
   }};
   backdrop-filter: ${({ type }) => {

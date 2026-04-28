@@ -15,6 +15,8 @@ import { BASE_TRANSITION_DURATION } from '../constants/transitions'
 import { ModalWrapper } from '../containers/Modal'
 import { SideDrawer } from '../containers/Modal/SideDrawer'
 
+// Safety pad past the overlay's `transitionend` so we unmount strictly after
+// the fade completes. Mirrors `SAFETY_BUFFER` in `useAnimatedVisibility.js`.
 export const STACK_CLEANUP_BUFFER = 100
 
 const ModalContext = createContext()

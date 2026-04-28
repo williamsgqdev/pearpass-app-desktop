@@ -199,6 +199,7 @@ export const MoveFolderModalContentV2 = ({
                       )}
                       size="md"
                       isSelected={false}
+                      // Designs intentionally omit the favorite badge in this list.
                       isFavorite={false}
                       color={
                         RECORD_COLOR_BY_TYPE[
