@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 
+import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 import { html } from 'htm/react'
 
 import { OverlayComponent } from './styles'
@@ -14,6 +15,7 @@ import { useAnimatedVisibility } from '../../hooks/useAnimatedVisibility'
  * }} props
  */
 export const Overlay = ({ isOpen, onClick, type = 'default' }) => {
+  const { theme } = useTheme()
   const nodeRef = useRef(null)
   const { isShown, isRendered } = useAnimatedVisibility({
     isOpen: isOpen,
@@ -31,6 +33,7 @@ export const Overlay = ({ isOpen, onClick, type = 'default' }) => {
       ref=${nodeRef}
       type=${type}
       isShown=${isShown}
+      scrim=${theme.colors.colorScrim}
       onClick=${() => onClick?.()}
     />
   `
