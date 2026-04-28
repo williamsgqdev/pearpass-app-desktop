@@ -30,20 +30,19 @@ import { CreateOrEditVaultModalContentV2 } from '../../../../containers/Modal/Cr
 import { PairedDevicesModalContent } from '../../../../containers/Modal/PairedDevicesModalContent'
 import { useModal } from '../../../../context/ModalContext'
 import { useTranslation } from '../../../../hooks/useTranslation'
+import { useVaultSwitch } from '../../../../hooks/useVaultSwitch'
 import { sortByName } from '../../../../utils/sortByName'
 import { createStyles } from './styles'
-import { useLoadingContext } from '../../../../context/LoadingContext'
-import { logger } from '../../../../utils/logger'
 
 export const YourVaultsContent = () => {
   const { t } = useTranslation()
   const { setModal, closeModal } = useModal()
-  const { setIsLoading } = useLoadingContext()
+  const { switchVault } = useVaultSwitch()
 
   const { theme } = useTheme()
   const styles = createStyles(theme.colors)
 
-  const { data: vault, refetch: refetchVault } = useVault()
+  const { data: vault } = useVault()
   const { data: allVaults } = useVaults()
 
   const { data: records } = useRecords({
@@ -107,22 +106,11 @@ export const YourVaultsContent = () => {
       })
     : t('Private')
 
-  const switchToVault = useCallback(
-    async (v: Vault) => {
-      if (v.id === vault?.id) {
-        return
-      }
-
-      try {
-        setIsLoading(true)
-        await refetchVault(v.id)
-      } catch (error) {
-        logger.error('YourVaultsContent', 'Error switching to vault:', error)
-      } finally {
-        setIsLoading(false)
-      }
+  const handleSwitchToVault = useCallback(
+    (v: Vault) => {
+      void switchVault(v, () => {})
     },
-    [vault?.id, setIsLoading]
+    [switchVault]
   )
 
   if (!vault) {
@@ -236,7 +224,7 @@ export const YourVaultsContent = () => {
             {otherVaults.map((v, index) => {
               return (
                 <ListItem
-                  onClick={() => switchToVault(v)}
+                  onClick={() => handleSwitchToVault(v)}
                   key={v.id}
                   withRoundedBorders={false}
                   dividerColor={theme.colors.colorBorderPrimary}
