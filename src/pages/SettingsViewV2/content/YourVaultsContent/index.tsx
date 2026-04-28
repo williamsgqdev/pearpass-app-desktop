@@ -32,14 +32,19 @@ import { useModal } from '../../../../context/ModalContext'
 import { useTranslation } from '../../../../hooks/useTranslation'
 import { sortByName } from '../../../../utils/sortByName'
 import { createStyles } from './styles'
+import { useLoadingContext } from '../../../../context/LoadingContext'
+import { logger } from '../../../../utils/logger'
 
 export const YourVaultsContent = () => {
   const { t } = useTranslation()
   const { setModal, closeModal } = useModal()
+  const { setIsLoading } = useLoadingContext()
+
   const { theme } = useTheme()
   const styles = createStyles(theme.colors)
 
-  const { data: vault } = useVault()
+
+  const { data: vault, refetch: refetchVault } = useVault()
   const { data: allVaults } = useVaults()
 
   const { data: records } = useRecords({
@@ -99,13 +104,29 @@ export const YourVaultsContent = () => {
 
   const DevicesMeta = vault?.devices?.length
     ? t('{count, plural, one {# Device} other {# Devices}}', {
-        count: vault?.devices?.length ?? 0
-      })
+      count: vault?.devices?.length ?? 0
+    })
     : t('Private')
 
   if (!vault) {
     return null
   }
+
+  const switchToVault = useCallback(async (v: Vault) => {
+    if (v.id === vault?.id) {
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      await refetchVault(v.id)
+    } catch (error) {
+      logger.error('YourVaultsContent', 'Error switching to vault:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [vault?.id])
+
 
   return (
     <div style={styles.root} data-testid="settings-card-your-vault">
@@ -114,7 +135,7 @@ export const YourVaultsContent = () => {
           as="h1"
           title={t('Your Vaults')}
           subtitle={t(
-            'Manage your vaults, control access permissions, and take protective measures if needed.'
+            'Manage your vaults. Select the vault you want to apply changes to.'
           )}
         />
       </div>
@@ -214,11 +235,12 @@ export const YourVaultsContent = () => {
             {otherVaults.map((v, index) => {
               return (
                 <ListItem
+                  onClick={() => switchToVault(v)}
                   key={v.id}
-                  withRoundedBottomBorders={false}
+                  withRoundedBorders={false}
                   dividerColor={theme.colors.colorBorderPrimary}
                   testID={`settings-other-vault-${v.name}-${index}`}
-                  selectable={false}
+                  selectable
                   title={v.name}
                   showDivider={index < otherVaults.length - 1}
                   icon={

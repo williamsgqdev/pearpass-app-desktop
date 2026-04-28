@@ -333,7 +333,7 @@ const VaultRow = ({
       style={styles.vaultRow as React.ComponentProps<typeof ListItem>['style']}
       testID={`vault-row-${vault.id}`}
       onClick={() => onSelect(vault)}
-      rightElement={rightElement}
+      rightElement={isActive ? rightElement : undefined}
     />
   )
 }
