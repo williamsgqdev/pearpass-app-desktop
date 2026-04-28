@@ -30,12 +30,15 @@ import { CreateOrEditVaultModalContentV2 } from '../../../../containers/Modal/Cr
 import { PairedDevicesModalContent } from '../../../../containers/Modal/PairedDevicesModalContent'
 import { useModal } from '../../../../context/ModalContext'
 import { useTranslation } from '../../../../hooks/useTranslation'
+import { useVaultSwitch } from '../../../../hooks/useVaultSwitch'
 import { sortByName } from '../../../../utils/sortByName'
 import { createStyles } from './styles'
 
 export const YourVaultsContent = () => {
   const { t } = useTranslation()
   const { setModal, closeModal } = useModal()
+  const { switchVault } = useVaultSwitch()
+
   const { theme } = useTheme()
   const styles = createStyles(theme.colors)
 
@@ -103,6 +106,13 @@ export const YourVaultsContent = () => {
       })
     : t('Private')
 
+  const handleSwitchToVault = useCallback(
+    (v: Vault) => {
+      void switchVault(v, () => {})
+    },
+    [switchVault]
+  )
+
   if (!vault) {
     return null
   }
@@ -114,7 +124,7 @@ export const YourVaultsContent = () => {
           as="h1"
           title={t('Your Vaults')}
           subtitle={t(
-            'Manage your vaults, control access permissions, and take protective measures if needed.'
+            'Manage your vaults. Select the vault you want to apply changes to.'
           )}
         />
       </div>
@@ -214,11 +224,12 @@ export const YourVaultsContent = () => {
             {otherVaults.map((v, index) => {
               return (
                 <ListItem
+                  onClick={() => handleSwitchToVault(v)}
                   key={v.id}
-                  withRoundedBottomBorders={false}
+                  withRoundedBorders={false}
                   dividerColor={theme.colors.colorBorderPrimary}
                   testID={`settings-other-vault-${v.name}-${index}`}
-                  selectable={false}
+                  selectable
                   title={v.name}
                   showDivider={index < otherVaults.length - 1}
                   icon={

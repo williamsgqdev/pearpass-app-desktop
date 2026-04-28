@@ -10,6 +10,7 @@ import { YourVaultsContent } from './index'
 
 const mockSetModal = jest.fn()
 const mockCloseModal = jest.fn()
+const mockSwitchVault = jest.fn(() => Promise.resolve())
 
 const vaultState: {
   current: { data: { id: string; name: string } | null }
@@ -30,6 +31,10 @@ jest.mock('../../../../context/ModalContext', () => ({
   })
 }))
 
+jest.mock('../../../../hooks/useVaultSwitch', () => ({
+  useVaultSwitch: () => ({ switchVault: mockSwitchVault })
+}))
+
 jest.mock('../../../../hooks/useTranslation', () => ({
   useTranslation: () => ({
     t: (str: string, values?: { count?: number }) => {
@@ -45,10 +50,6 @@ jest.mock('@tetherto/pearpass-lib-vault', () => ({
   useVault: () => ({ data: vaultState.current.data }),
   useVaults: () => ({ data: vaultState.all.data }),
   useRecords: (_args?: unknown) => ({ data: vaultState.records.data })
-}))
-
-jest.mock('../../../../containers/Modal/SeeDevicesModalContent', () => ({
-  SeeDevicesModalContent: () => null
 }))
 
 jest.mock('./styles', () => ({
@@ -127,6 +128,7 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
     title,
     subtitle,
     rightElement,
+    onClick,
     showDivider: _d,
     dividerColor: _c,
     icon: _ic,
@@ -136,6 +138,7 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
     title: string
     subtitle?: string | { primary?: string; secondary?: string }
     rightElement?: React.ReactNode
+    onClick?: () => void
     [key: string]: unknown
   }) => {
     const subtitleText =
@@ -143,7 +146,7 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
         ? [subtitle.primary, subtitle.secondary].filter(Boolean).join(' ')
         : subtitle
     return (
-      <div data-testid={testID}>
+      <div data-testid={testID} onClick={onClick} role={onClick ? 'button' : undefined}>
         <span>{title}</span>
         {subtitleText ? <span>{subtitleText}</span> : null}
         {rightElement}
@@ -250,6 +253,27 @@ describe('YourVaultsContent', () => {
     expect(
       screen.getByTestId('settings-other-vault-Second Vault-0')
     ).toBeInTheDocument()
+  })
+
+  it('delegates switching another vault to useVaultSwitch', async () => {
+    vaultState.all = {
+      data: [
+        { id: 'vault-main', name: 'Main Vault' },
+        { id: 'vault-other', name: 'Second Vault' }
+      ]
+    }
+
+    render(<YourVaultsContent />)
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('settings-other-vault-Second Vault-0'))
+    })
+
+    expect(mockSwitchVault).toHaveBeenCalledTimes(1)
+    expect(mockSwitchVault).toHaveBeenCalledWith(
+      { id: 'vault-other', name: 'Second Vault' },
+      expect.any(Function)
+    )
   })
 
   it('opens the add-device modal when the invite control is used', () => {

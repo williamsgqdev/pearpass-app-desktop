@@ -243,7 +243,7 @@ export const CreateOrEditNoteModalContentV2 = ({
           testID="createoredit-note-comments-slot-v2"
           actions={
             <Button
-              variant="tertiary"
+              variant="tertiaryAccent"
               size="small"
               type="button"
               iconBefore={<Add width={16} height={16} />}
@@ -296,7 +296,7 @@ export const CreateOrEditNoteModalContentV2 = ({
           testID="createoredit-note-attachments-slot-v2"
           actions={
             <Button
-              variant="tertiary"
+              variant="tertiaryAccent"
               size="small"
               type="button"
               iconBefore={<Add width={16} height={16} />}

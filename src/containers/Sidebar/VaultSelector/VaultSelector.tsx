@@ -35,7 +35,7 @@ import { AddDeviceModalContentV2 } from '../../Modal/AddDeviceModalContentV2/Add
 import { CreateOrEditVaultModalContentV2 } from '../../Modal/CreateOrEditVaultModalContentV2/CreateOrEditVaultModalContentV2'
 import { DeleteVaultModalContent } from '../../Modal/DeleteVaultModalContent'
 import { ModifyVaultModalContent } from '../../Modal/ModifyVaultModalContent'
-import { VaultPasswordFormModalContent } from '../../Modal/VaultPasswordFormModalContent'
+import { useVaultSwitch } from '../../../hooks/useVaultSwitch'
 
 type VaultSelectorProps = {
   onClose?: () => void
@@ -47,13 +47,10 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps) => {
   const styles = createStyles(theme.colors)
   const { setIsLoading } = useLoadingContext()
   const { setModal, closeModal } = useModal()
+  const { switchVault } = useVaultSwitch()
 
   const { data: vaultsData } = useVaults()
-  const {
-    data: activeVault,
-    isVaultProtected,
-    refetch: refetchVault
-  } = useVault()
+  const { data: activeVault } = useVault()
   const { data: inviteData, createInvite } = useInvite()
 
   const vaults = useMemo<Vault[]>(
@@ -75,46 +72,6 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps) => {
       }
     }
     setModal(<AddDeviceModalContentV2 />)
-  }
-
-  const switchVault = async (
-    vault: Vault,
-    onSuccess: () => void | Promise<void>
-  ) => {
-    setIsLoading(true)
-
-    try {
-      if (vault.id === activeVault?.id) {
-        await onSuccess()
-        return
-      }
-
-      const isProtected = await isVaultProtected(vault.id)
-
-      if (isProtected) {
-        setModal(
-          <VaultPasswordFormModalContent
-            vault={vault}
-            onSubmit={async (password: string) => {
-              setIsLoading(true)
-              try {
-                await refetchVault(vault.id, { password })
-                closeModal()
-                await onSuccess()
-              } finally {
-                setIsLoading(false)
-              }
-            }}
-          />
-        )
-        return
-      }
-
-      await refetchVault(vault.id)
-      await onSuccess()
-    } finally {
-      setIsLoading(false)
-    }
   }
 
   const handleCreate = () => {
@@ -333,7 +290,7 @@ const VaultRow = ({
       style={styles.vaultRow as React.ComponentProps<typeof ListItem>['style']}
       testID={`vault-row-${vault.id}`}
       onClick={() => onSelect(vault)}
-      rightElement={rightElement}
+      rightElement={isActive ? rightElement : undefined}
     />
   )
 }

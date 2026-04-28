@@ -405,7 +405,7 @@ export const BlindPeersContent = () => {
                         actions={
                           <div style={styles.multiSlotActions}>
                             <Button
-                              variant="tertiary"
+                              variant="tertiaryAccent"
                               size="medium"
                               disabled={
                                 interactionDisabled ||
