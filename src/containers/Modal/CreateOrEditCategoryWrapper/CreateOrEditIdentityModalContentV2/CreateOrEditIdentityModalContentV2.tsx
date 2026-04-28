@@ -586,7 +586,7 @@ export const CreateOrEditIdentityModalContentV2 = ({
           testID="createoredit-identity-attachments-slot-v2"
           actions={
             <Button
-              variant="tertiary"
+              variant="tertiaryAccent"
               size="small"
               type="button"
               iconBefore={<Add width={16} height={16} />}
@@ -660,7 +660,7 @@ export const CreateOrEditIdentityModalContentV2 = ({
           testID="createoredit-identity-customfields-slot-v2"
           actions={
             <Button
-              variant="tertiary"
+              variant="tertiaryAccent"
               size="small"
               type="button"
               iconBefore={<Add width={16} height={16} />}

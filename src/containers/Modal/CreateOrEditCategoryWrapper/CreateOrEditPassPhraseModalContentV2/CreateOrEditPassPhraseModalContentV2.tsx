@@ -223,7 +223,7 @@ export const CreateOrEditPassPhraseModalContentV2 = ({
           testID="createoredit-passphrase-comments-slot-v2"
           actions={
             <Button
-              variant="tertiary"
+              variant="tertiaryAccent"
               size="small"
               type="button"
               iconBefore={<Add width={16} height={16} />}

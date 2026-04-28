@@ -335,7 +335,7 @@ export const CreateOrEditLoginModalContentV2 = ({
           testID="createoredit-credentials-slot-v2"
           actions={
             <Button
-              variant="tertiary"
+              variant="tertiaryAccent"
               size="small"
               type="button"
               iconBefore={<SyncLock width={16} height={16} />}
@@ -405,7 +405,7 @@ export const CreateOrEditLoginModalContentV2 = ({
           testID="createoredit-websites-slot-v2"
           actions={
             <Button
-              variant="tertiary"
+              variant="tertiaryAccent"
               size="small"
               type="button"
               iconBefore={<Add width={16} height={16} />}
@@ -484,7 +484,7 @@ export const CreateOrEditLoginModalContentV2 = ({
           testID="createoredit-comment-slot-v2"
           actions={
             <Button
-              variant="tertiary"
+              variant="tertiaryAccent"
               size="small"
               type="button"
               iconBefore={<Add width={16} height={16} />}
@@ -511,7 +511,7 @@ export const CreateOrEditLoginModalContentV2 = ({
           testID="createoredit-attachments-slot-v2"
           actions={
             <Button
-              variant="tertiary"
+              variant="tertiaryAccent"
               size="small"
               type="button"
               iconBefore={<Add width={16} height={16} />}
@@ -585,7 +585,7 @@ export const CreateOrEditLoginModalContentV2 = ({
           testID="createoredit-hiddenmessage-slot-v2"
           actions={
             <Button
-              variant="tertiary"
+              variant="tertiaryAccent"
               size="small"
               type="button"
               iconBefore={<Add width={16} height={16} />}
