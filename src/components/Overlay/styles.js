@@ -2,8 +2,10 @@ import styled from 'styled-components'
 
 import { BASE_TRANSITION_DURATION } from '../../constants/transitions'
 
+const SCRIM_BLUR = 'rgba(0, 0, 0, 0.5)'
+
 export const OverlayComponent = styled.div.withConfig({
-  shouldForwardProp: (prop) => !['isShown'].includes(prop)
+  shouldForwardProp: (prop) => !['isShown', 'scrim'].includes(prop)
 })`
   position: fixed;
   top: 0;
@@ -12,13 +14,13 @@ export const OverlayComponent = styled.div.withConfig({
   height: 100%;
   opacity: ${({ isShown }) => (isShown ? 1 : 0)};
   transition: opacity ${BASE_TRANSITION_DURATION}ms ease-in-out;
-  background: ${({ type }) => {
+  background: ${({ type, scrim }) => {
     if (type === 'default') {
-      return 'rgba(35, 35, 35, 0.6)'
+      return scrim
     }
 
     if (type === 'blur') {
-      return 'rgba(0, 0, 0, 0.5)'
+      return SCRIM_BLUR
     }
   }};
   backdrop-filter: ${({ type }) => {

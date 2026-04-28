@@ -13,6 +13,7 @@ import {
   NewFolderIcon
 } from '../../../lib-react-components'
 import { isV2 } from '../../../utils/designVersion'
+import { sortByName } from '../../../utils/sortByName'
 import { CreateFolderModalContent } from '../CreateFolderModalContent'
 import { CreateFolderModalContentV2 } from '../CreateFolderModalContentV2/CreateFolderModalContentV2'
 import { ModalContent } from '../ModalContent'
@@ -43,8 +44,8 @@ export const MoveFolderModalContent = ({ records, onCompleted }) => {
     const excludedFolder = records?.length === 1 ? records[0].folder : null
     const customFolders = Object.values(folders?.customFolders ?? {})
 
-    return (
-      customFolders.filter((folder) => folder.name !== excludedFolder) ?? []
+    return sortByName(
+      customFolders.filter((folder) => folder.name !== excludedFolder)
     )
   }, [folders, records])
 

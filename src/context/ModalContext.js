@@ -15,6 +15,10 @@ import { BASE_TRANSITION_DURATION } from '../constants/transitions'
 import { ModalWrapper } from '../containers/Modal'
 import { SideDrawer } from '../containers/Modal/SideDrawer'
 
+// Safety pad past the overlay's `transitionend` so we unmount strictly after
+// the fade completes. Mirrors `SAFETY_BUFFER` in `useAnimatedVisibility.js`.
+export const STACK_CLEANUP_BUFFER = 100
+
 const ModalContext = createContext()
 
 const getTopModal = (modalStack) => modalStack[modalStack.length - 1]
@@ -64,24 +68,24 @@ export const ModalProvider = ({ children }) => {
   }, [])
 
   const closeModal = useCallback(() => {
+    let closingId = null
+
     setModalStack((prevState) => {
-      const newStack = [...prevState]
+      if (prevState.length === 0) return prevState
+      const topIdx = prevState.length - 1
+      const top = prevState[topIdx]
+      if (!top.isOpen) return prevState
 
-      if (newStack?.[newStack?.length - 1]?.isOpen) {
-        newStack[newStack.length - 1].isOpen = false
-      }
-
-      return newStack
+      closingId = top.id
+      return [...prevState.slice(0, topIdx), { ...top, isOpen: false }]
     })
 
-    setTimeout(() => {
-      setModalStack((prevState) => {
-        const newStack = [...prevState]
-        newStack.pop()
+    if (!closingId) return
 
-        return newStack
-      })
-    }, BASE_TRANSITION_DURATION)
+    const idToRemove = closingId
+    setTimeout(() => {
+      setModalStack((prevState) => prevState.filter((m) => m.id !== idToRemove))
+    }, BASE_TRANSITION_DURATION + STACK_CLEANUP_BUFFER)
   }, [])
 
   useEffect(() => {

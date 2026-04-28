@@ -37,10 +37,12 @@ export const createStyles = (colors: ThemeColors) => ({
   },
 
   tooltip: {
+    // Right-anchor so the tooltip grows leftward into the screen — the actions
+    // bar sits at the right edge, and centered tooltips overflow the viewport.
     position: 'absolute' as const,
     top: '100%',
-    left: '50%',
-    transform: 'translate(-50%, 6px)',
+    right: 0,
+    transform: 'translateY(6px)',
     zIndex: 10,
     pointerEvents: 'none' as const,
     whiteSpace: 'nowrap' as const

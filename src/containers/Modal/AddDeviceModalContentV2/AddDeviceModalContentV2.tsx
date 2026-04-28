@@ -9,11 +9,7 @@ import {
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
 import { ContentCopy } from '@tetherto/pearpass-lib-ui-kit/icons'
-import {
-  authoriseCurrentProtectedVault,
-  useInvite,
-  useVault
-} from '@tetherto/pearpass-lib-vault'
+import { useInvite } from '@tetherto/pearpass-lib-vault'
 
 import { createStyles } from './AddDeviceModalContentV2.styles'
 import { useModal } from '../../../context/ModalContext'
@@ -21,7 +17,6 @@ import { useToast } from '../../../context/ToastContext'
 import { useAutoLockPreferences } from '../../../hooks/useAutoLockPreferences'
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard.electron'
 import { useTranslation } from '../../../hooks/useTranslation'
-import { VaultPasswordFormModalContent } from '../VaultPasswordFormModalContent'
 import { ScanQRExpireTimer } from '../AddDeviceModalContent/ScanQRExpireTimer'
 
 export const AddDeviceModalContentV2 = () => {
@@ -31,8 +26,6 @@ export const AddDeviceModalContentV2 = () => {
   const { theme } = useTheme()
   const { colors } = theme
   const [qrSvg, setQrSvg] = useState('')
-  const [isProtected, setIsProtected] = useState<boolean | null>(null)
-  const { data: vaultData, isVaultProtected } = useVault()
   const { createInvite, deleteInvite, data } = useInvite()
   const { setShouldBypassAutoLock } = useAutoLockPreferences()
   const { copyToClipboard, isCopied } = useCopyToClipboard()
@@ -62,23 +55,6 @@ export const AddDeviceModalContentV2 = () => {
     }
   }, [data])
 
-  useEffect(() => {
-    let cancelled = false
-
-    const checkProtection = async () => {
-      const result = await isVaultProtected(vaultData?.id)
-      if (!cancelled) {
-        setIsProtected(result)
-      }
-    }
-
-    void checkProtection()
-
-    return () => {
-      cancelled = true
-    }
-  }, [vaultData?.id, isVaultProtected])
-
   const styles = createStyles(colors)
 
   const handleCopyKey = () => {
@@ -89,19 +65,6 @@ export const AddDeviceModalContentV2 = () => {
         message: t('Invite code not found')
       })
     }
-  }
-
-  if (isProtected) {
-    return (
-      <VaultPasswordFormModalContent
-        onSubmit={async (password: string) => {
-          if (await authoriseCurrentProtectedVault(password)) {
-            setIsProtected(false)
-          }
-        }}
-        vault={vaultData!}
-      />
-    )
   }
 
   const displayLink = isCopied ? t('Copied!') : (data?.publicKey ?? '')

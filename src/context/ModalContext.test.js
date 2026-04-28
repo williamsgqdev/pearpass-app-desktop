@@ -2,9 +2,11 @@ import React from 'react'
 
 import { render, screen, fireEvent, act } from '@testing-library/react'
 
-import { ModalProvider, useModal } from './ModalContext'
+import { ModalProvider, STACK_CLEANUP_BUFFER, useModal } from './ModalContext'
 import { BASE_TRANSITION_DURATION } from '../constants/transitions'
 import '@testing-library/jest-dom'
+
+const CLOSE_DURATION = BASE_TRANSITION_DURATION + STACK_CLEANUP_BUFFER
 
 jest.mock('@tetherto/pear-apps-utils-generate-unique-id', () => ({
   generateUniqueId: jest.fn(() => 'unique-id')
@@ -105,7 +107,7 @@ describe('ModalProvider', () => {
     fireEvent.click(screen.getByText('Close Modal'))
 
     act(() => {
-      jest.advanceTimersByTime(BASE_TRANSITION_DURATION)
+      jest.advanceTimersByTime(CLOSE_DURATION)
     })
 
     expect(screen.queryByTestId('modal-content')).not.toBeInTheDocument()
@@ -124,7 +126,7 @@ describe('ModalProvider', () => {
     fireEvent.keyDown(window, { key: 'Escape', code: 'Escape' })
 
     act(() => {
-      jest.advanceTimersByTime(BASE_TRANSITION_DURATION)
+      jest.advanceTimersByTime(CLOSE_DURATION)
     })
 
     expect(screen.queryByTestId('modal-content')).not.toBeInTheDocument()
@@ -143,7 +145,7 @@ describe('ModalProvider', () => {
     fireEvent.click(screen.getByTestId('overlay'))
 
     act(() => {
-      jest.advanceTimersByTime(BASE_TRANSITION_DURATION)
+      jest.advanceTimersByTime(CLOSE_DURATION)
     })
 
     expect(screen.queryByTestId('modal-content')).not.toBeInTheDocument()

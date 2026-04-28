@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 // @ts-ignore - JS module without type declarations
 import { generateAvatarInitials } from '@tetherto/pear-apps-utils-avatar-initials'
@@ -7,8 +7,10 @@ import { useFolders, useRecords } from '@tetherto/pearpass-lib-vault'
 
 import { createStyles } from './MoveFolderModalContentV2.styles'
 import { RECORD_COLOR_BY_TYPE } from '../../../constants/recordColorByType'
+import { FADE_GRADIENT_HEIGHT } from '../../../constants/layout'
 import { useModal } from '../../../context/ModalContext'
 import { useGlobalLoading } from '../../../context/LoadingContext'
+import { useScrollOverflow } from '../../../hooks/useScrollOverflow'
 import { useTranslation } from '../../../hooks/useTranslation'
 import { Folder } from '@tetherto/pearpass-lib-ui-kit/icons'
 import { RecordAvatar } from '../../../components/RecordAvatar'
@@ -16,7 +18,6 @@ import { RecordAvatar } from '../../../components/RecordAvatar'
 export type MoveFolderRecord = Record<string, unknown> & {
   id: string
   folder?: string | null
-  isFavorite?: boolean
   type: string
   data?: {
     title?: string
@@ -105,6 +106,9 @@ export const MoveFolderModalContentV2 = ({
 
   const isMoveDisabled = isLoading || !selectedId || atDestination
 
+  const itemsListRef = useRef<HTMLDivElement>(null)
+  const hasItemsOverflow = useScrollOverflow(itemsListRef, [records.length])
+
   const isSingle = records.length === 1
   const moveDialogTitle = isSingle
     ? t('Move 1 item')
@@ -126,6 +130,8 @@ export const MoveFolderModalContentV2 = ({
     itemRow,
     itemText,
     itemsList,
+    itemsListWrapper,
+    fadeGradient,
     destinationHint,
     chipRow,
     itemsListHeader
@@ -169,43 +175,57 @@ export const MoveFolderModalContentV2 = ({
         </div>
 
         {records.length > 0 ? (
-          <div style={itemsList}>
-            {records.map((record, index) => {
-              const domain =
-                record.type === 'login'
-                  ? record.data?.websites?.[0] ?? null
-                  : null
-              const subtitle = getRecordSubtitle(record)
-              const titleText = record.data?.title ?? ''
-              return (
-                <div key={record.id} style={itemRow}>
-                  <RecordAvatar
-                    websiteDomain={domain ?? ''}
-                    initials={generateAvatarInitials(record.data?.title ?? '')}
-                    size="md"
-                    isSelected={false}
-                    isFavorite={!!record.isFavorite}
-                    color={
-                      RECORD_COLOR_BY_TYPE[
-                      record.type as keyof typeof RECORD_COLOR_BY_TYPE
-                      ] ?? RECORD_COLOR_BY_TYPE.custom
-                    }
-                    testId={`movefolder-avatar-v2-${index}`}
-                  />
-                  <div style={itemText}>
-                    <Text>{titleText}</Text>
-                    {subtitle ? (
-                      <Text
-                        variant="caption"
-                        color={theme.colors.colorTextSecondary}
-                      >
-                        {subtitle}
-                      </Text>
-                    ) : null}
+          <div style={itemsListWrapper}>
+            <div
+              ref={itemsListRef}
+              style={{
+                ...itemsList,
+                paddingBottom: hasItemsOverflow ? FADE_GRADIENT_HEIGHT : 0
+              }}
+            >
+              {records.map((record, index) => {
+                const domain =
+                  record.type === 'login'
+                    ? record.data?.websites?.[0] ?? null
+                    : null
+                const subtitle = getRecordSubtitle(record)
+                const titleText = record.data?.title ?? ''
+                return (
+                  <div key={record.id} style={itemRow}>
+                    <RecordAvatar
+                      websiteDomain={domain ?? ''}
+                      initials={generateAvatarInitials(
+                        record.data?.title ?? ''
+                      )}
+                      size="md"
+                      isSelected={false}
+                      // Designs intentionally omit the favorite badge in this list.
+                      isFavorite={false}
+                      color={
+                        RECORD_COLOR_BY_TYPE[
+                          record.type as keyof typeof RECORD_COLOR_BY_TYPE
+                        ] ?? RECORD_COLOR_BY_TYPE.custom
+                      }
+                      testId={`movefolder-avatar-v2-${index}`}
+                    />
+                    <div style={itemText}>
+                      <Text>{titleText}</Text>
+                      {subtitle ? (
+                        <Text
+                          variant="caption"
+                          color={theme.colors.colorTextSecondary}
+                        >
+                          {subtitle}
+                        </Text>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
+            {hasItemsOverflow ? (
+              <div style={fadeGradient} aria-hidden="true" />
+            ) : null}
           </div>
         ) : null}
 
