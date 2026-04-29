@@ -28,6 +28,12 @@ jest.mock('../../context/ModalContext', () => ({
   })
 }))
 
+jest.mock('../../hooks/useTranslation', () => ({
+  useTranslation: () => ({
+    t: (key) => key
+  })
+}))
+
 jest.mock('../../hooks/useRecordMenuItems', () => ({
   useRecordMenuItems: jest.fn()
 }))
