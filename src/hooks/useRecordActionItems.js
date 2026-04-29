@@ -1,3 +1,5 @@
+import React from 'react'
+
 import { useLingui } from '@lingui/react'
 import { useRecords } from '@tetherto/pearpass-lib-vault'
 import { html } from 'htm/react'

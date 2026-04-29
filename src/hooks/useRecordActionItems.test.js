@@ -3,6 +3,7 @@ import { renderHook } from '@testing-library/react'
 import { useRecordActionItems } from './useRecordActionItems'
 import { useModal } from '../context/ModalContext'
 import { useRouter } from '../context/RouterContext'
+import { isV2 } from '../utils/designVersion'
 
 const mockDeleteRecord = jest.fn()
 const mockUpdateFavoriteState = jest.fn()
@@ -13,6 +14,14 @@ jest.mock(
     MoveFolderModalContentV2: () => null
   })
 )
+
+jest.mock('../containers/Modal/DeleteRecordsModalContentV2', () => ({
+  DeleteRecordsModalContentV2: () => null
+}))
+
+jest.mock('../utils/designVersion', () => ({
+  isV2: jest.fn().mockReturnValue(true)
+}))
 
 jest.mock(
   '../containers/Modal/CreateFolderModalContentV2/CreateFolderModalContentV2',
@@ -175,6 +184,8 @@ describe('useRecordActionItems', () => {
   })
 
   test('handles delete confirmation', () => {
+    isV2.mockReturnValue(false)
+
     useRouter.mockReturnValue({
       data: { recordId: '123' },
       navigate: mockNavigate,
