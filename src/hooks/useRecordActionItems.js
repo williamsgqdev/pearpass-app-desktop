@@ -4,6 +4,7 @@ import { html } from 'htm/react'
 
 import { useCreateOrEditRecord } from './useCreateOrEditRecord'
 import { ConfirmationModalContent } from '../containers/Modal/ConfirmationModalContent'
+import { DeleteRecordsModalContentV2 } from '../containers/Modal/DeleteRecordsModalContentV2'
 import { MoveFolderModalContent } from '../containers/Modal/MoveFolderModalContent'
 import { MoveFolderModalContentV2 } from '../containers/Modal/MoveFolderModalContentV2/MoveFolderModalContentV2'
 import { useModal } from '../context/ModalContext'
@@ -50,17 +51,20 @@ export const useRecordActionItems = ({
   }
 
   const handleDelete = () => {
-    setModal(html`
-      <${ConfirmationModalContent}
-        title=${i18n._('Are you sure to delete this item?')}
-        text=${i18n._('This is permanent and cannot be undone')}
-        primaryLabel=${i18n._('No')}
-        secondaryLabel=${i18n._('Yes')}
-        secondaryAction=${handleDeleteConfirm}
-        primaryAction=${closeModal}
-      />
-    `)
-
+    if (isV2()) {
+      setModal(<DeleteRecordsModalContentV2 records={[record]} />)
+    } else {
+      setModal(
+        <ConfirmationModalContent
+          title={i18n._('Are you sure to delete this item?')}
+          text={i18n._('This is permanent and cannot be undone')}
+          primaryLabel={i18n._('No')}
+          secondaryLabel={i18n._('Yes')}
+          secondaryAction={handleDeleteConfirm}
+          primaryAction={closeModal}
+        />
+      )
+    }
     onClose?.()
   }
 
