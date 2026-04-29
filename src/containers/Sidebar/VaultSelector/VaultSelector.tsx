@@ -37,11 +37,7 @@ import { DeleteVaultModalContent } from '../../Modal/DeleteVaultModalContent'
 import { ModifyVaultModalContent } from '../../Modal/ModifyVaultModalContent'
 import { useVaultSwitch } from '../../../hooks/useVaultSwitch'
 
-type VaultSelectorProps = {
-  onClose?: () => void
-}
-
-export const VaultSelector = ({ onClose }: VaultSelectorProps) => {
+export const VaultSelector = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const styles = createStyles(theme.colors)
@@ -60,7 +56,9 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps) => {
 
   const iconPrimary = { color: theme.colors.colorTextPrimary }
   const iconSecondary = { color: theme.colors.colorTextSecondary }
-  const iconDestructive = { color: theme.colors.colorSurfaceDestructiveElevated }
+  const iconDestructive = {
+    color: theme.colors.colorSurfaceDestructiveElevated
+  }
 
   const openInviteModal = async (vault: Vault) => {
     if (inviteData?.vaultId !== vault.id) {
@@ -84,23 +82,23 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps) => {
   }
 
   const handleVaultClick = (vault: Vault) => {
-    void switchVault(vault, () => onClose?.())
+    if (activeVault?.id !== vault.id) {
+      void switchVault(vault)
+    }
   }
 
   const handleInvite = (vault: Vault) => {
-    void switchVault(vault, () => openInviteModal(vault))
+    openInviteModal(vault)
   }
 
   const handleRename = (vault: Vault) => {
-    void switchVault(vault, () => {
-      setModal(
-        <CreateOrEditVaultModalContentV2
-          vault={vault}
-          onClose={closeModal}
-          onSuccess={closeModal}
-        />
-      )
-    })
+    setModal(
+      <CreateOrEditVaultModalContentV2
+        vault={vault}
+        onClose={closeModal}
+        onSuccess={closeModal}
+      />
+    )
   }
 
   const handleSetPassword = (vault: Vault) => {
@@ -294,4 +292,3 @@ const VaultRow = ({
     />
   )
 }
-
