@@ -9,6 +9,7 @@ import {
   Form,
   InputField,
   MultiSlotInput,
+  PasswordField,
   Text,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
@@ -104,7 +105,7 @@ export const CreateOrEditCustomModalContentV2 = ({
       title: initialRecord?.data?.title ?? '',
       customFields: initialRecord?.data?.customFields?.length
         ? initialRecord.data.customFields
-        : [{ type: 'note', note: '' }],
+        : [{ type: 'note', name: 'note', note: '' }],
       folder: selectedFolder ?? initialRecord?.folder,
       attachments: initialRecord?.attachments ?? []
     },
@@ -214,63 +215,6 @@ export const CreateOrEditCustomModalContentV2 = ({
 
         <div style={styles.sectionLabel}>
           <Text variant="caption" color={theme.colors.colorTextSecondary}>
-            {t('Details')}
-          </Text>
-        </div>
-
-        <MultiSlotInput
-          testID="createoredit-custom-fields-slot-v2"
-          actions={
-            <Button
-              variant="tertiaryAccent"
-              size="small"
-              type="button"
-              iconBefore={<Add width={16} height={16} />}
-              onClick={() => addCustomField({ type: 'note', note: '' })}
-              data-testid="createoredit-custom-button-addcustomfield-v2"
-            >
-              {t('Add Another Field')}
-            </Button>
-          }
-        >
-          {customFieldsList.map((field: { id: string }, index: number) => {
-            const fieldReg = registerCustomFieldItem('note', index)
-            const canRemove = customFieldsList.length > 1
-            return (
-              <InputField
-                key={field.id}
-                label={t('Other Field')}
-                placeholder={t('Enter Value')}
-                value={fieldReg.value}
-                onChange={(e) => fieldReg.onChange(e.target.value)}
-                error={fieldReg.error || undefined}
-                testID={`createoredit-custom-input-customfield-v2-${index}`}
-                rightSlot={
-                  canRemove ? (
-                    <Button
-                      variant="tertiary"
-                      size="small"
-                      type="button"
-                      aria-label={t('Remove')}
-                      iconBefore={
-                        <TrashOutlined
-                          width={16}
-                          height={16}
-                          color={theme.colors.colorTextPrimary}
-                        />
-                      }
-                      onClick={() => removeCustomFieldItem(index)}
-                      data-testid={`createoredit-custom-button-removecustomfield-v2-${index}`}
-                    />
-                  ) : undefined
-                }
-              />
-            )
-          })}
-        </MultiSlotInput>
-
-        <div style={styles.sectionLabel}>
-          <Text variant="caption" color={theme.colors.colorTextSecondary}>
             {t('Additional')}
           </Text>
         </div>
@@ -347,6 +291,59 @@ export const CreateOrEditCustomModalContentV2 = ({
               />
             }
           />
+        </MultiSlotInput>
+
+        <MultiSlotInput
+          testID="createoredit-custom-hiddenmessage-slot-v2"
+          actions={
+            <Button
+              variant="tertiaryAccent"
+              size="small"
+              type="button"
+              iconBefore={<Add width={16} height={16} />}
+              onClick={() =>
+                addCustomField({ type: 'note', name: 'note', note: '' })
+              }
+              data-testid="createoredit-custom-button-addhiddenmessage-v2"
+            >
+              {t('Add Another Message')}
+            </Button>
+          }
+        >
+          {customFieldsList.map((field: { id: string }, index: number) => {
+            const fieldReg = registerCustomFieldItem('note', index)
+            const canRemove = customFieldsList.length > 1
+            return (
+              <PasswordField
+                key={field.id}
+                label={t('Hidden Message')}
+                placeholder={t('Enter Hidden Message')}
+                value={fieldReg.value}
+                onChange={(e) => fieldReg.onChange(e.target.value)}
+                error={fieldReg.error || undefined}
+                testID={`createoredit-custom-input-hiddenmessage-v2-${index}`}
+                rightSlot={
+                  canRemove ? (
+                    <Button
+                      variant="tertiary"
+                      size="small"
+                      type="button"
+                      aria-label={t('Remove')}
+                      iconBefore={
+                        <TrashOutlined
+                          width={16}
+                          height={16}
+                          color={theme.colors.colorTextPrimary}
+                        />
+                      }
+                      onClick={() => removeCustomFieldItem(index)}
+                      data-testid={`createoredit-custom-button-removehiddenmessage-v2-${index}`}
+                    />
+                  ) : undefined
+                }
+              />
+            )
+          })}
         </MultiSlotInput>
       </Form>
     </Dialog>

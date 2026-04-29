@@ -9,6 +9,7 @@ import {
   Form,
   InputField,
   MultiSlotInput,
+  PasswordField,
   Text,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
@@ -240,59 +241,6 @@ export const CreateOrEditNoteModalContentV2 = ({
         </div>
 
         <MultiSlotInput
-          testID="createoredit-note-comments-slot-v2"
-          actions={
-            <Button
-              variant="tertiaryAccent"
-              size="small"
-              type="button"
-              iconBefore={<Add width={16} height={16} />}
-              onClick={() => addCustomField({ type: 'note', note: '' })}
-              data-testid="createoredit-note-button-addcomment-v2"
-            >
-              {t('Add Another Note')}
-            </Button>
-          }
-        >
-          {customFieldsList.map(
-            (field: { id: string }, index: number) => {
-              const fieldReg = registerCustomFieldItem('note', index)
-              const canRemove = customFieldsList.length > 1
-              return (
-                <InputField
-                  key={field.id}
-                  label={t('Comment')}
-                  placeholder={t('Enter Comment')}
-                  value={fieldReg.value}
-                  onChange={(e) => fieldReg.onChange(e.target.value)}
-                  error={fieldReg.error || undefined}
-                  testID={`createoredit-note-input-comment-v2-${index}`}
-                  rightSlot={
-                    canRemove ? (
-                      <Button
-                        variant="tertiary"
-                        size="small"
-                        type="button"
-                        aria-label={t('Remove')}
-                        iconBefore={
-                          <TrashOutlined
-                            width={16}
-                            height={16}
-                            color={theme.colors.colorTextPrimary}
-                          />
-                        }
-                        onClick={() => removeCustomFieldItem(index)}
-                        data-testid={`createoredit-note-button-removecomment-v2-${index}`}
-                      />
-                    ) : undefined
-                  }
-                />
-              )
-            }
-          )}
-        </MultiSlotInput>
-
-        <MultiSlotInput
           testID="createoredit-note-attachments-slot-v2"
           actions={
             <Button
@@ -364,6 +312,57 @@ export const CreateOrEditNoteModalContentV2 = ({
               />
             }
           />
+        </MultiSlotInput>
+
+        <MultiSlotInput
+          testID="createoredit-note-hiddenmessage-slot-v2"
+          actions={
+            <Button
+              variant="tertiaryAccent"
+              size="small"
+              type="button"
+              iconBefore={<Add width={16} height={16} />}
+              onClick={() => addCustomField({ type: 'note', note: '' })}
+              data-testid="createoredit-note-button-addhiddenmessage-v2"
+            >
+              {t('Add Another Message')}
+            </Button>
+          }
+        >
+          {customFieldsList.map((field: { id: string }, index: number) => {
+            const fieldReg = registerCustomFieldItem('note', index)
+            const canRemove = customFieldsList.length > 1
+            return (
+              <PasswordField
+                key={field.id}
+                label={t('Hidden Message')}
+                placeholder={t('Enter Hidden Message')}
+                value={fieldReg.value}
+                onChange={(e) => fieldReg.onChange(e.target.value)}
+                error={fieldReg.error || undefined}
+                testID={`createoredit-note-input-hiddenmessage-v2-${index}`}
+                rightSlot={
+                  canRemove ? (
+                    <Button
+                      variant="tertiary"
+                      size="small"
+                      type="button"
+                      aria-label={t('Remove')}
+                      iconBefore={
+                        <TrashOutlined
+                          width={16}
+                          height={16}
+                          color={theme.colors.colorTextPrimary}
+                        />
+                      }
+                      onClick={() => removeCustomFieldItem(index)}
+                      data-testid={`createoredit-note-button-removehiddenmessage-v2-${index}`}
+                    />
+                  ) : undefined
+                }
+              />
+            )
+          })}
         </MultiSlotInput>
       </Form>
     </Dialog>

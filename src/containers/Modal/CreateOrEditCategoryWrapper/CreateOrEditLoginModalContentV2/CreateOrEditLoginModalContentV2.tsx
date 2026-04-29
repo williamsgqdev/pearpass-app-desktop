@@ -483,23 +483,7 @@ export const CreateOrEditLoginModalContentV2 = ({
           </Text>
         </div>
 
-        <MultiSlotInput
-          testID="createoredit-comment-slot-v2"
-          actions={
-            <Button
-              variant="tertiaryAccent"
-              size="small"
-              type="button"
-              iconBefore={<Add width={16} height={16} />}
-              onClick={() =>
-                addCustomField({ type: 'note', name: 'note' })
-              }
-              data-testid="createoredit-button-addcomment-v2"
-            >
-              {t('Add Another Comment')}
-            </Button>
-          }
-        >
+        <MultiSlotInput testID="createoredit-comment-slot-v2">
           <InputField
             label={t('Comment')}
             placeholder={t('Enter Comment')}

@@ -1,7 +1,11 @@
 import { useEffect, useMemo } from 'react'
 
 import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
-import { InputField, MultiSlotInput } from '@tetherto/pearpass-lib-ui-kit'
+import {
+  InputField,
+  MultiSlotInput,
+  PasswordField
+} from '@tetherto/pearpass-lib-ui-kit'
 
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard.electron'
 import { useTranslation } from '../../../hooks/useTranslation'
@@ -72,34 +76,34 @@ export const PassPhraseDetailsFormV2 = ({
     <div style={styles.container}>
       {hasPassPhrase && <PassPhraseV2 value={values.passPhrase} />}
 
-      {(hasNote || hasCustomFields) && (
+      {hasNote && (
         <MultiSlotInput testID="comments-multi-slot-input">
-          {hasNote && (
-            <InputField
-              label={t('Comment')}
-              placeholder={t('Enter Comment')}
-              readOnly
-              copyable
-              onCopy={copyToClipboard}
-              isGrouped
-              testID="comments-multi-slot-input-slot-0"
-              {...toReadOnlyFieldProps(register('note'))}
-            />
-          )}
+          <InputField
+            label={t('Comment')}
+            placeholder={t('Enter Comment')}
+            readOnly
+            copyable
+            onCopy={copyToClipboard}
+            isGrouped
+            testID="comments-multi-slot-input-slot-0"
+            {...toReadOnlyFieldProps(register('note'))}
+          />
+        </MultiSlotInput>
+      )}
 
+      {hasCustomFields && (
+        <MultiSlotInput testID="hidden-messages-multi-slot-input">
           {(values.customFields as CustomField[]).map((field, index) => (
-            <InputField
+            <PasswordField
               key={`${field.type}-${index}`}
-              label={t('Comment')}
+              label={t('Hidden Message')}
               value={field.note ?? ''}
-              placeholder={t('Enter Comment')}
+              placeholder={t('Enter Hidden Message')}
               readOnly
               copyable
               onCopy={copyToClipboard}
               isGrouped
-              testID={`comments-multi-slot-input-slot-${
-                hasNote ? index + 1 : index
-              }`}
+              testID={`hidden-messages-multi-slot-input-slot-${index}`}
             />
           ))}
         </MultiSlotInput>

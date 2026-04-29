@@ -9,6 +9,7 @@ import {
   Form,
   InputField,
   MultiSlotInput,
+  PasswordField,
   Text,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
@@ -101,7 +102,9 @@ export const CreateOrEditPassPhraseModalContentV2 = ({
       title: initialRecord?.data?.title ?? '',
       passPhrase: initialRecord?.data?.passPhrase ?? '',
       note: initialRecord?.data?.note ?? '',
-      customFields: initialRecord?.data?.customFields ?? [],
+      customFields: initialRecord?.data?.customFields?.length
+        ? initialRecord.data.customFields
+        : [{ type: 'note', note: '' }],
       folder: selectedFolder ?? initialRecord?.folder
     },
     validate: (formValues: Record<string, unknown>) => {
@@ -138,7 +141,10 @@ export const CreateOrEditPassPhraseModalContentV2 = ({
         title: formValues.title,
         passPhrase: formValues.passPhrase,
         note: formValues.note,
-        customFields: formValues.customFields
+        customFields: (
+          (formValues.customFields as Array<{ type: string; note?: string }>) ??
+          []
+        ).filter((f) => f.note?.trim().length)
       }
     }
 
@@ -219,21 +225,7 @@ export const CreateOrEditPassPhraseModalContentV2 = ({
           </Text>
         </div>
 
-        <MultiSlotInput
-          testID="createoredit-passphrase-comments-slot-v2"
-          actions={
-            <Button
-              variant="tertiaryAccent"
-              size="small"
-              type="button"
-              iconBefore={<Add width={16} height={16} />}
-              onClick={() => addCustomField({ type: 'note', note: '' })}
-              data-testid="createoredit-passphrase-button-addcomment-v2"
-            >
-              {t('Add Another Note')}
-            </Button>
-          }
-        >
+        <MultiSlotInput testID="createoredit-passphrase-comments-slot-v2">
           <InputField
             label={t('Comment')}
             placeholder={t('Enter Comment')}
@@ -242,34 +234,53 @@ export const CreateOrEditPassPhraseModalContentV2 = ({
             error={noteField.error || undefined}
             testID="createoredit-passphrase-input-comment-v2"
           />
+        </MultiSlotInput>
 
+        <MultiSlotInput
+          testID="createoredit-passphrase-hiddenmessage-slot-v2"
+          actions={
+            <Button
+              variant="tertiaryAccent"
+              size="small"
+              type="button"
+              iconBefore={<Add width={16} height={16} />}
+              onClick={() => addCustomField({ type: 'note', note: '' })}
+              data-testid="createoredit-passphrase-button-addhiddenmessage-v2"
+            >
+              {t('Add Another Message')}
+            </Button>
+          }
+        >
           {customFieldsList.map((field: { id: string }, index: number) => {
             const fieldReg = registerCustomFieldItem('note', index)
+            const canRemove = customFieldsList.length > 1
             return (
-              <InputField
+              <PasswordField
                 key={field.id}
-                label={t('Comment')}
-                placeholder={t('Enter Comment')}
+                label={t('Hidden Message')}
+                placeholder={t('Enter Hidden Message')}
                 value={fieldReg.value}
                 onChange={(e) => fieldReg.onChange(e.target.value)}
                 error={fieldReg.error || undefined}
-                testID={`createoredit-passphrase-input-comment-v2-${index}`}
+                testID={`createoredit-passphrase-input-hiddenmessage-v2-${index}`}
                 rightSlot={
-                  <Button
-                    variant="tertiary"
-                    size="small"
-                    type="button"
-                    aria-label={t('Remove')}
-                    iconBefore={
-                      <TrashOutlined
-                        width={16}
-                        height={16}
-                        color={theme.colors.colorTextPrimary}
-                      />
-                    }
-                    onClick={() => removeCustomFieldItem(index)}
-                    data-testid={`createoredit-passphrase-button-removecomment-v2-${index}`}
-                  />
+                  canRemove ? (
+                    <Button
+                      variant="tertiary"
+                      size="small"
+                      type="button"
+                      aria-label={t('Remove')}
+                      iconBefore={
+                        <TrashOutlined
+                          width={16}
+                          height={16}
+                          color={theme.colors.colorTextPrimary}
+                        />
+                      }
+                      onClick={() => removeCustomFieldItem(index)}
+                      data-testid={`createoredit-passphrase-button-removehiddenmessage-v2-${index}`}
+                    />
+                  ) : undefined
                 }
               />
             )

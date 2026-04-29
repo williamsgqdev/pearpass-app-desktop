@@ -3,8 +3,8 @@ import { useEffect, useMemo } from 'react'
 import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import {
   AttachmentField,
-  InputField,
   MultiSlotInput,
+  PasswordField,
   Text,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
@@ -119,48 +119,44 @@ export const CustomDetailsFormV2 = ({
 
   return (
     <div style={styles.container}>
-      {hasCustomFields && (
+      {(hasAttachments || hasCustomFields) && (
         <div style={styles.section}>
           <Text variant="caption" color={theme.colors.colorTextSecondary}>
-            {t('Details')}
+            {t('Additional')}
           </Text>
 
-          <MultiSlotInput testID="custom-fields-multi-slot-input">
-            {(values.customFields as CustomField[]).map((field, index) => (
-              <InputField
-                key={`${field.type}-${index}`}
-                label={t('Other Field')}
-                value={field.note ?? ''}
-                placeholder={t('Enter Value')}
-                readOnly
-                copyable
-                onCopy={copyToClipboard}
-                isGrouped
-                testID={`custom-fields-multi-slot-input-slot-${index}`}
-              />
-            ))}
-          </MultiSlotInput>
-        </div>
-      )}
+          {hasAttachments && (
+            <MultiSlotInput testID="attachments-multi-slot-input">
+              {(values.attachments as Attachment[]).map((attachment, index) => (
+                <AttachmentField
+                  key={attachment?.id || attachment?.tempId || attachment.name}
+                  label={t('Attachment')}
+                  value={attachment?.name ?? ''}
+                  isGrouped
+                  testID={`attachment-field-${index}`}
+                  onClick={() => handleAttachmentPress(attachment)}
+                />
+              ))}
+            </MultiSlotInput>
+          )}
 
-      {hasAttachments && (
-        <div style={styles.section}>
-          <Text variant="caption" color={theme.colors.colorTextSecondary}>
-            {t('Attachments')}
-          </Text>
-
-          <MultiSlotInput testID="attachments-multi-slot-input">
-            {(values.attachments as Attachment[]).map((attachment, index) => (
-              <AttachmentField
-                key={attachment?.id || attachment?.tempId || attachment.name}
-                label={t('Attachment')}
-                value={attachment?.name ?? ''}
-                isGrouped
-                testID={`attachment-field-${index}`}
-                onClick={() => handleAttachmentPress(attachment)}
-              />
-            ))}
-          </MultiSlotInput>
+          {hasCustomFields && (
+            <MultiSlotInput testID="hidden-messages-multi-slot-input">
+              {(values.customFields as CustomField[]).map((field, index) => (
+                <PasswordField
+                  key={`${field.type}-${index}`}
+                  label={t('Hidden Message')}
+                  value={field.note ?? ''}
+                  placeholder={t('Enter Hidden Message')}
+                  readOnly
+                  copyable
+                  onCopy={copyToClipboard}
+                  isGrouped
+                  testID={`hidden-messages-multi-slot-input-slot-${index}`}
+                />
+              ))}
+            </MultiSlotInput>
+          )}
         </div>
       )}
     </div>

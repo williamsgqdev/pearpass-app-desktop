@@ -5,6 +5,7 @@ import {
   AttachmentField,
   InputField,
   MultiSlotInput,
+  PasswordField,
   Text,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
@@ -145,48 +146,44 @@ export const NoteDetailsFormV2 = ({
         </div>
       )}
 
-      {hasCustomFields && (
+      {(hasAttachments || hasCustomFields) && (
         <div style={styles.section}>
           <Text variant="caption" color={theme.colors.colorTextSecondary}>
             {t('Additional')}
           </Text>
 
-          <MultiSlotInput testID="comments-multi-slot-input">
-            {(values.customFields as CustomField[]).map((field, index) => (
-              <InputField
-                key={`${field.type}-${index}`}
-                label={t('Comment')}
-                value={field.note ?? ''}
-                placeholder={t('Enter Comment')}
-                readOnly
-                copyable
-                onCopy={copyToClipboard}
-                isGrouped
-                testID={`comments-multi-slot-input-slot-${index}`}
-              />
-            ))}
-          </MultiSlotInput>
-        </div>
-      )}
+          {hasAttachments && (
+            <MultiSlotInput testID="attachments-multi-slot-input">
+              {(values.attachments as Attachment[]).map((attachment, index) => (
+                <AttachmentField
+                  key={attachment?.id || attachment?.tempId || attachment.name}
+                  label={t('Attachment')}
+                  value={attachment?.name ?? ''}
+                  isGrouped
+                  testID={`attachment-field-${index}`}
+                  onClick={() => handleAttachmentPress(attachment)}
+                />
+              ))}
+            </MultiSlotInput>
+          )}
 
-      {hasAttachments && (
-        <div style={styles.section}>
-          <Text variant="caption" color={theme.colors.colorTextSecondary}>
-            {t('Attachments')}
-          </Text>
-
-          <MultiSlotInput testID="attachments-multi-slot-input">
-            {(values.attachments as Attachment[]).map((attachment, index) => (
-              <AttachmentField
-                key={attachment?.id || attachment?.tempId || attachment.name}
-                label={t('Attachment')}
-                value={attachment?.name ?? ''}
-                isGrouped
-                testID={`attachment-field-${index}`}
-                onClick={() => handleAttachmentPress(attachment)}
-              />
-            ))}
-          </MultiSlotInput>
+          {hasCustomFields && (
+            <MultiSlotInput testID="hidden-messages-multi-slot-input">
+              {(values.customFields as CustomField[]).map((field, index) => (
+                <PasswordField
+                  key={`${field.type}-${index}`}
+                  label={t('Hidden Message')}
+                  value={field.note ?? ''}
+                  placeholder={t('Enter Hidden Message')}
+                  readOnly
+                  copyable
+                  onCopy={copyToClipboard}
+                  isGrouped
+                  testID={`hidden-messages-multi-slot-input-slot-${index}`}
+                />
+              ))}
+            </MultiSlotInput>
+          )}
         </div>
       )}
     </div>
