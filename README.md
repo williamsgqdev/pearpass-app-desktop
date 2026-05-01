@@ -6,8 +6,6 @@
 
 > The desktop app for PearPass, an open-source, end-to-end encrypted password and identity manager built on Pear Runtime.
 
-> ⚠️ **Intel Mac Support:** Intel-based Mac builds are deprecated and provided without official support or active testing. We're keeping them available for now, but use them at your own risk. If you run into issues, feel free to open a ticket. While we can't guarantee a fix, we'd like to know if these builds are still being used!
-
 ---
 
 ## Table of Contents
@@ -83,6 +81,8 @@ npm run dev
 Visit the official PearPass documentation for step-by-step guides on setup, vault management, syncing across devices, browser extension usage, and all other PearPass features:
 
 **[docs.pass.pears.com](https://docs.pass.pears.com)**
+
+> ⚠️ **Intel Mac Users:** Intel-based Mac builds are no longer actively maintained or tested, but we're keeping them around for those who need them — use at your own risk! If something breaks, don't hesitate to open a ticket. We can't guarantee a fix, but we genuinely want to know if people are still using these builds.
 
 ---
 
